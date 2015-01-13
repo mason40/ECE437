@@ -45,8 +45,37 @@ module register_file_tb;
     .\CLK (CLK)
   );
 `endif
-
 endmodule
 
 program test;
+  int i;
+  initial begin
+    register_file_tb.rfif.wsel = 4'h0000;
+    register_file_tb.rfif.rsel1 = 4'h0000;
+    $monitor("@%00g CLK = %b nRST = %b WEN = %b rdata = %b", $time, register_file_tb.CLK,register_file_tb.nRST, register_file_tb.rfif.WEN, register_file_tb.rfif.rdat1);
+    // async reset
+    register_file_tb.nRST = 0;
+    #(register_file_tb.PERIOD);
+    register_file_tb.nRST = 1;
+    // testing writing and reading from reg0
+    #(register_file_tb.PERIOD);
+    register_file_tb.rfif.WEN = 1;
+    register_file_tb.rfif.wdat = 4'h1010;
+    #(register_file_tb.PERIOD);
+    register_file_tb.rfif.WEN = 0;
+    register_file_tb.rfif.wsel = 4'h0001;
+    register_file_tb.rfif.rsel1 = 4'h0001;
+    // testing the reading data from register file
+    for(i = 0; i < 32; i++) begin
+      register_file_tb.rfif.WEN = 1;
+      register_file_tb.rfif.wdat = i;
+      #(register_file_tb.PERIOD);
+    end
+    // testing reset
+    #(register_file_tb.PERIOD);
+    register_file_tb.nRST = 0;
+    #(register_file_tb.PERIOD);
+    $finish;
+  end
+
 endprogram
