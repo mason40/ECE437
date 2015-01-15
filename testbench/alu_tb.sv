@@ -195,7 +195,39 @@ program test;
       $error("FAILED :: Logic NOR");
     end
     // testing SLT
+    eflag = 0;
+    alu_tb.aluop = ALU_SLT;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    for(i = 0; i < 5; i++) begin
+      alu_tb.aluif.porta = 2*i+2;
+      alu_tb.aluif.portb = i+3;
+      #(1);
+      if(alu_tb.aluif.portout == 'h1) begin
+        eflag += 1;
+      end
+    end
+    if(eflag == 1) begin
+      $display("PASSED :: SLT testing");
+    end else begin
+      $error("FAILED :: SLT testing");
+    end
     // testing SLTU
+    eflag = 0;
+    alu_tb.aluop = ALU_SLTU;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    for(i = 0; i < 5; i++) begin
+      alu_tb.aluif.porta = 2*i+2;
+      alu_tb.aluif.portb = i+3;
+      #(1);
+      if(alu_tb.aluif.portout == 'h1) begin
+        eflag += 1;
+      end
+    end
+    if(eflag == 1) begin
+      $display("PASSED :: SLTU testing");
+    end else begin
+      $error("FAILED :: SLTU testing");
+    end
     // testing Zero flag
     /* case 1 */
     alu_tb.aluif.porta = 10;
@@ -240,7 +272,53 @@ program test;
       $error("FAILED :: Zero flag testing");
     end
     // testing Negative flag
+    /* case 1*/
+    alu_tb.aluif.porta = 0;
+    alu_tb.aluif.portb = -1;
+    alu_tb.aluop = ALU_ADD;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    #(1);
+    if(alu_tb.aluif.n_flag != 1) begin
+      eflag += 1;
+    end
+    /* case 2*/
+    alu_tb.aluif.porta = 'h00000000;
+    alu_tb.aluif.portb = 'h0000000f;
+    alu_tb.aluop = ALU_SUB;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    #(1);
+    if(alu_tb.aluif.n_flag != 1) begin
+      eflag += 1;
+    end
+    if(eflag == 0) begin
+      $display("PASSED :: Negative flag testing");
+    end else begin
+      $error("FAILED :: Negative flag testing");
+    end
     // testing Overflow flag
+    /* case 1 */
+    alu_tb.aluif.porta = 'h70000000;
+    alu_tb.aluif.portb = 'h10000000;
+    alu_tb.aluop = ALU_ADD;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    #(1);
+    if(alu_tb.aluif.v_flag != 1) begin
+      eflag += 1;
+    end
+    /* case 2 */
+    alu_tb.aluif.porta = 'h80000000;
+    alu_tb.aluif.portb = 1;
+    alu_tb.aluop = ALU_SLL;
+    alu_tb.aluif.aluop = alu_tb.aluop;
+    #(1);
+    if(alu_tb.aluif.v_flag != 0) begin
+      eflag += 1;
+    end
+    if(eflag == 0) begin
+      $display("PASSED :: Overflow flag testing");
+    end else begin
+      $error("FAILED :: Overflow flag testing");
+    end
     $finish;
   end
 endprogram

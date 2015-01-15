@@ -53,6 +53,20 @@ always_comb begin
         aluif.portout[i] = ~(aluif.porta[i] | aluif.portb[i]);
       end
     end
+    ALU_SLT : begin
+      if(aluif.porta < aluif.portb) begin
+        aluif.portout = 'h1;
+      end else begin
+        aluif.portout = 'h0;
+      end
+    end
+    ALU_SLTU : begin
+      if(aluif.porta < aluif.portb) begin
+        aluif.portout = 'h1;
+      end else begin
+        aluif.portout = 'h0;
+      end
+    end
   endcase
 end
 
@@ -60,5 +74,6 @@ end
 
 assign aluif.z_flag = (aluif.portout == '0) ? 1 : 0;
 assign aluif.n_flag = (aluif.portout[31] == 1'b1) ? 1 : 0;
+assign aluif.v_flag = (~(aluif.porta[31]^aluif.portb[31]))&(aluif.portout[31]^aluif.porta[31]);
 
 endmodule
