@@ -55,10 +55,10 @@ program test;
   int eflag = 0;  // error flag
 
   initial begin
-    register_file_tb.rfif.wsel = 4'h0000;
-    register_file_tb.rfif.rsel1 = 4'h0000;
-    register_file_tb.rfif.rsel2 = 4'h0000;
-    $monitor("@%03g rsel1 = %02d rdata1 = %h rsel2 = %02d rdata2 = %h",$time, register_file_tb.rfif.rsel1, register_file_tb.rfif.rdat1, register_file_tb.rfif.rsel2,register_file_tb.rfif.rdat2);
+    register_file_tb.rfif.wsel = 5'b00000;
+    register_file_tb.rfif.rsel1 = 5'b00000;
+    register_file_tb.rfif.rsel2 = 5'b00000;
+    $monitor("@%03g rsel1 = %02d rdata1 = %8h rsel2 = %02d rdata2 = %8h",$time, register_file_tb.rfif.rsel1, register_file_tb.rfif.rdat1, register_file_tb.rfif.rsel2,register_file_tb.rfif.rdat2);
     // async reset
     register_file_tb.nRST = 0;
     #(register_file_tb.PERIOD);
@@ -66,21 +66,21 @@ program test;
     // testing writing and reading from reg0
     #(register_file_tb.PERIOD);
     register_file_tb.rfif.WEN = 1;
-    register_file_tb.rfif.wdat = 4'h1010;
+    register_file_tb.rfif.wdat = 32'b00000000111100001100110011110000;
     #(register_file_tb.PERIOD);
     register_file_tb.rfif.WEN = 0;
-    register_file_tb.rfif.wsel = 4'h0001;
-    register_file_tb.rfif.rsel1 = 4'h0001;
-    if(register_file_tb.rfif.rdat1 == 4'h0000) begin
+    register_file_tb.rfif.wsel = 5'b00001;
+    register_file_tb.rfif.rsel1 = 5'b00001;
+    if(register_file_tb.rfif.rdat1 == 32'b0) begin
       $display("PASSED :: Reading from reg0");
     end else begin
       $error("FAILED :: Reading from reg0");
     end
     // reset the enables and selects to 0x0000
-    register_file_tb.rfif.rsel1 = 4'h0000;
-    register_file_tb.rfif.rsel2 = 4'h0000;
+    register_file_tb.rfif.rsel1 = 5'b00000;
+    register_file_tb.rfif.rsel2 = 5'b00000;
     register_file_tb.rfif.WEN = 0;
-    register_file_tb.rfif.wsel = 4'h0000;
+    register_file_tb.rfif.wsel = 5'b00000;
     // writing to register testing
     register_file_tb.rfif.WEN = 1'b1;
     for(i = 0; i < 32; i++) begin
@@ -89,7 +89,7 @@ program test;
       register_file_tb.rfif.wsel = register_file_tb.rfif.wsel + 1;
     end
     // testing the reading data from register file rsel1
-    register_file_tb.rfif.rsel1 = 4'h0000;
+    register_file_tb.rfif.rsel1 = 5'b00000;
     for(i = 0; i < 32; i++) begin
       if(register_file_tb.rfif.rdat1 != i) begin
         eflag += 1;
@@ -104,7 +104,7 @@ program test;
     end
     // testing the reading data from register file rsel2
     eflag = 0;
-    register_file_tb.rfif.rsel2 = 4'h0000;
+    register_file_tb.rfif.rsel2 = 5'b00000;
     for(i = 0; i < 32; i++) begin
       if(register_file_tb.rfif.rdat2 != i) begin
         eflag += 1;
@@ -121,7 +121,7 @@ program test;
     #(register_file_tb.PERIOD);
     register_file_tb.nRST = 0;
     #(register_file_tb.PERIOD);
-    register_file_tb.rfif.rsel1 = 4'h0001;
+    register_file_tb.rfif.rsel1 = 5'b00001;
     if(register_file_tb.rfif.rdat1 == 0) begin
       $display("PASSED :: Asynchronous Reset");
     end else begin

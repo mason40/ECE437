@@ -12,12 +12,13 @@
 // all types
 `include "cpu_types_pkg.vh"
 
-interface alu_if;
-  import cpu_types_pkg::*;
+// import pkg
+import cpu_types_pkg::*;
 
+interface alu_if;
   aluop_t aluop;
   word_t porta, portb, portout;
-  regbits_t n_flag, z_flag, v_flag;
+  logic n_flag, z_flag, v_flag;
 
   // alu file ports
   modport alu (
