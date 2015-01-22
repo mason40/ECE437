@@ -37,5 +37,7 @@ mloop:  slt $6, $5, $2
         addiu $5, $5, 1
         j mloop
 lend:
+        ori $3, $0, 0x8000
+        sw $4, 0($3)
         push $4
         jr $31

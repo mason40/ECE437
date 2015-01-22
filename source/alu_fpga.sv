@@ -12,20 +12,26 @@
 import cpu_types_pkg::*;
 
 module alu_fpga (
+  input logic CLOCK_50,
   input logic [17:0] SW,
   input logic [3:0] KEY,
-  output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7
+  output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7,
+  output logic [2:0] LEDR
 );
 
 alu_if aluif();
 alu ALU(aluif);
-word_t regb;
+word_t reg_a, reg_b;
 
+always_ff @ (SW[17]) begin
+  if(SW[17]) begin
+    reg_b = SW[15:0];
+  end else begin
+    reg_b = reg_b;
+  end
+end
 
 always_comb begin
-  if(SW[17] == 1'b1) begin
-    regb = SW[16:0];
-  end
   casez (aluif.portout[3:0])
     'h0: HEX0 = 7'b1000000;
     'h1: HEX0 = 7'b1111001;
@@ -172,8 +178,14 @@ always_comb begin
   endcase
 end
 
-assign aluif.aluop = KEY[3:0];
-assign aluif.porta = SW[16:0];
-assign aluif.portb = regb;
+assign aluif.aluop[3] = KEY[3];
+assign aluif.aluop[2] = KEY[2];
+assign aluif.aluop[1] = KEY[1];
+assign aluif.aluop[0] = KEY[0];
+assign aluif.porta = {SW[16]&&SW[15:0],SW[15:0]};
+assign aluif.portb = {SW[16]&&reg_b, reg_b};
+assign LEDR[2] = aluif.z_flag;
+assign LEDR[1] = aluif.n_flag;
+assign LEDR[0] = aluif.v_flag;
 
 endmodule

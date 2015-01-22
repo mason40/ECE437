@@ -20,5 +20,6 @@ loop:     slt $5, $20, $1
           addiu $20, $20, 1
           j loop
 end:
-          push $4
+          ori $3, $0, 0x8000
+          sw $4, 0($3)
           halt

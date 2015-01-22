@@ -7,9 +7,9 @@
 
         org 0x0800
 init:   ori $29, $0, 0xfffc
-        ori $1, $0, 2014  #year
-        ori $2, $0, 7    #month
-        ori $3, $0, 11    #day
+        ori $1, $0, 2015  #year
+        ori $2, $0, 1    #month
+        ori $3, $0, 20    #day
         ori $30, $0, 1
 main:   subu $2, $2, $30   #month-1
         ori $30, $0, 2000
@@ -26,6 +26,9 @@ main:   subu $2, $2, $30   #month-1
         pop $2
         addu $1, $1, $2
         addu $1, $3, $1
+        ori $2, $0, 0x8000
+        sw $1, 0($2)
+        push $1
         halt
 
 mult:   ori $20, $0, 0x0000
