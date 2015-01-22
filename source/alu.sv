@@ -1,8 +1,8 @@
 /*
   Jason Lin
   lin57@purdue.edu
+  mg208
   1/14/2015
-  ECE437
 
   ALU source file
 */
@@ -16,9 +16,6 @@ import cpu_types_pkg::*;
 module alu (
   alu_if aluif
 );
-
-// internal indexing variable
-int i;
 
 // combinational block
 always_comb begin
@@ -36,35 +33,29 @@ always_comb begin
       aluif.portout = aluif.porta - aluif.portb;
     end
     ALU_AND : begin
-      for(i = 0; i < 32; i++) begin
-        aluif.portout[i] = aluif.porta[i] & aluif.portb[i];
-      end
+      aluif.portout = aluif.porta & aluif.portb;
     end
     ALU_OR  : begin
-      for(i = 0; i < 32; i++) begin
-        aluif.portout[i] = aluif.porta[i] | aluif.portb[i];
-      end
+      aluif.portout = aluif.porta | aluif.portb;
     end
     ALU_XOR : begin
       aluif.portout = aluif.porta ^ aluif.portb;
     end
     ALU_NOR : begin
-      for(i = 0; i < 32; i ++) begin
-        aluif.portout[i] = ~(aluif.porta[i] | aluif.portb[i]);
-      end
+      aluif.portout = ~(aluif.porta | aluif.portb);
     end
     ALU_SLT : begin
       if(aluif.porta < aluif.portb) begin
-        aluif.portout = 'h1;
+        aluif.portout = 1;
       end else begin
-        aluif.portout = 'h0;
+        aluif.portout = 0;
       end
     end
     ALU_SLTU : begin
       if(aluif.porta < aluif.portb) begin
-        aluif.portout = 'h1;
+        aluif.portout = 1;
       end else begin
-        aluif.portout = 'h0;
+        aluif.portout = 0;
       end
     end
   endcase
@@ -72,7 +63,7 @@ end
 
 // output assignment
 
-assign aluif.z_flag = (aluif.portout == '0) ? 1 : 0;
+assign aluif.z_flag = (aluif.portout == 0) ? 1 : 0;
 assign aluif.n_flag = (aluif.portout[31] == 1'b1) ? 1 : 0;
 assign aluif.v_flag = (~(aluif.porta[31]^aluif.portb[31]))&(aluif.portout[31]^aluif.porta[31]);
 

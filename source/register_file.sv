@@ -1,3 +1,12 @@
+/*
+  Jason Lin
+  lin57@purdue.edu
+  mg208
+  1/14/2015
+
+  Register file source file
+*/
+
 `include "register_file_if.vh"
 `include "cpu_types_pkg.vh"
 
