@@ -18,8 +18,15 @@ module datapath (
 );
   // import types
   import cpu_types_pkg::*;
+  control_unit_if cuif();
+  register_file_if rfif();
+  alu_if aluif();
+  pc_if pcif();
 
   // pc init
   parameter PC_INIT = 0;
+
+  //mapping control unit, regfile, alu and request unit
+  pc PC (CLK, nRST, pcif);
 
 endmodule
