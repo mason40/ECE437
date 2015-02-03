@@ -24,7 +24,6 @@ module memory_control_tb;
   always #(PERIOD/2) CLK++;
   // interface
   cache_control_if ccif();
-  cpu_ram_if ramif();
 
   // test program
   test PROG(CLK, nRST, ccif);

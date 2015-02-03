@@ -12,10 +12,17 @@
 interface pc_if;
   import cpu_types_pkg::*;
 
-  word_t cpc, npc;
+  // output to request unit
+  word_t cpc;
+  // input from request unit
+  word_t imm; // i type imm offset
+  logic [25:0] jaddr; // j type jump target address
+  logic branch; // branch control signal
+  logic [1:0] jump; // jump control signal 00 : no jump, 01 : j, 10: jr, 11: jal
+  regbits_t regtarget;  // r type jump target
 
   modport  pc(
-    input  npc,
+    input imm, jaddr, branch, jump, regtarget,
     output cpc
   );
 endinterface

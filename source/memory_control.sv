@@ -26,10 +26,10 @@ module memory_control (
   // priority bus selection
   always_comb begin
     if(!nRST) begin
-      ccif.iload[CPUID] = '0;
-      ccif.iwait[CPUID] = 0;
-      ccif.dload[CPUID] = '0;
-      ccif.dwait[CPUID] = 0;
+      ccif.iload = '0;
+      ccif.iwait = 0;
+      ccif.dload = '0;
+      ccif.dwait = 0;
       ccif.ramaddr = '0;
       ccif.ramREN = 0;
       ccif.ramWEN = 0;
@@ -81,6 +81,7 @@ module memory_control (
   // Cache port connection
 
   // RAM port connections for testing testbench only
+  /*
   cpu_ram_if prif();
   ram RAM(CLK, nRST, prif);
   assign ccif.ramstate = prif.ramstate;
@@ -89,5 +90,5 @@ module memory_control (
   assign prif.ramREN = ccif.ramREN;
   assign prif.ramaddr = ccif.ramaddr;
   assign prif.ramstore = ccif.ramstore;
-
+  */
 endmodule

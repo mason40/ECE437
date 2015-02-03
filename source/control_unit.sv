@@ -12,81 +12,155 @@
 import cpu_types_pkg::*;
 
 module control_unit (
+  input logic CLK, nRST,
   control_unit_if.cu cuif
 );
 
+logic [12:0] signals;
+
 always_comb begin
   if(cuif.opcode == RTYPE) begin
-    casez(cuif.func)
-      SLL : cuif.aluop = ALU_SLL;
-      SRL : cuif.aluop = ALU_SRL;
-      ADD : cuif.aluop = ALU_ADD;
-      ADDU: cuif.aluop = ALU_ADD;
-      SUB : cuif.aluop = ALU_SUB;
-      SUBU: cuif.aluop = ALU_SUB;
-      AND : cuif.aluop = ALU_AND;
-      OR  : cuif.aluop = ALU_OR;
-      XOR : cuif.aluop = ALU_XOR;
-      NOR : cuif.aluop = ALU_NOR;
-      SLT : cuif.aluop = ALU_SLT;
-      SLTU: cuif.aluop = ALU_SLTU;
-      JR  : cuif.jump = 2'b01;
-      default : cuif.jump = 2'b00;
-    endcase
+    casez(cuif.func) // rtype decoding
+      SLL : begin
+        cuif.aluop = ALU_SLL;
+        signals = 13'b1100010000000;
+      end
+      SRL : begin
+        cuif.aluop = ALU_SRL;
+        signals = 13'b1100010000000;
+      end
+      JR : begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0000000001000;
+      end
+      ADD: begin
+        cuif.aluop = ALU_ADD;
+        signals = {12'b110000000000,cuif.vflag};
+      end
+      ADDU: begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b1100000000000;
+      end
+      SUB : begin
+        cuif.aluop = ALU_SUB;
+        signals = {12'b110000000000,cuif.vflag};
+      end
+      SUBU: begin
+        cuif.aluop = ALU_SUB;
+        signals = 13'b1100000000000;
+      end
+      AND : begin
+        cuif.aluop = ALU_AND;
+        signals = 13'b1100000000000;
+      end
+      OR  : begin
+        cuif.aluop = ALU_OR;
+        signals = 13'b1100000000000;
+      end
+      XOR : begin
+        cuif.aluop = ALU_XOR;
+        signals = 13'b1100000000000;
+      end
+      NOR : begin
+        cuif.aluop = ALU_NOR;
+        signals = 13'b1100000000000;
+      end
+      SLT : begin
+        cuif.aluop = ALU_SLT;
+        signals = {12'b110000000000,cuif.vflag};
+      end
+      SLTU: begin
+        cuif.aluop = ALU_SLTU;
+        signals = 13'b1100000000000;
+      end
+      default : begin
+        cuif.aluop = ALU_ADD;
+        signals = '0;
+      end
+    endcase // end of the rtype case
   end else begin
-    casez(cuif.opcode)
-      BEQ : cuif.aluop = ALU_SLT;
-      BNE : cuif.aluop = ALU_SLT;
-      ADDI: cuif.aluop = ALU_ADD;
-      ADDIU: cuif.aluop = ALU_ADD;
-      SLTI: cuif.aluop = ALU_SLT;
-      SLTIU: cuif.aluop = ALU_SLTU;
-      ANDI: cuif.aluop = ALU_AND;
-      ORI : cuif.aluop = ALU_OR;
-      XORI: cuif.aluop = ALU_XOR;
-      LUI : cuif.aluop = ALU_SLL;
-      LW  : cuif.aluop = ALU_ADD;
-      LBU : cuif.aluop = ALU_ADD;
-      LHU : cuif.aluop = ALU_ADD;
-      SB  : cuif.aluop = ALU_ADD;
-      SH  : cuif.aluop = ALU_ADD;
-      SW  : cuif.aluop = ALU_ADD;
-      LL  : cuif.aluop = ALU_ADD;
-      SC  : cuif.aluop = ALU_ADD;
-      J   : cuif.jump = 2'b10;
-      JAL : cuif.jump = 2'b11;
-      default : cuif.jump = 2'b00;
-    endcase
+    casez(cuif.opcode) // itype and jtype
+      BEQ : begin
+        cuif.aluop = ALU_SLT;
+        signals = 13'b0000000100000;
+      end
+      BNE : begin
+        cuif.aluop = ALU_SLT;
+        signals = 13'b0000000100000;
+      end
+      ADDI: begin
+        cuif.aluop = ALU_ADD;
+        signals = {12'b01000000011,cuif.vflag};
+      end
+      ADDIU: begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0100000000110;
+      end
+      SLTI: begin
+        cuif.aluop = ALU_SLT;
+        signals = {12'b010000000011,cuif.vflag};
+      end
+      SLTIU: begin
+        cuif.aluop = ALU_SLTU;
+        signals = 13'b0100000000110;
+      end
+      ANDI: begin
+        cuif.aluop = ALU_AND;
+        signals = 13'b0100000000010;
+      end
+      ORI : begin
+        cuif.aluop = ALU_OR;
+        signals = 13'b0100000000010;
+      end
+      XORI: begin
+        cuif.aluop = ALU_XOR;
+        signals = 13'b0100000000010;
+      end
+      LUI : begin
+        cuif.aluop = ALU_SLL;
+        signals = 13'b0100001000010;
+      end
+      LW  : begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0110100000110;
+      end
+      SW  : begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0001000000110;
+      end
+      J   : begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0000000011000;
+      end
+      JAL : begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0000000011000;
+      end
+      HALT: begin
+        cuif.aluop = ALU_ADD;
+        signals = 13'b0000000000001;
+      end
+      default : begin
+        cuif.aluop = ALU_ADD;
+        signals = '0;
+      end
+    endcase // end of itype and jtype
   end
 end
 
-assign cuif.regDst = (cuif.opcode == RTYPE) ? 1 : 0;
-assign cuif.alusrc = (cuif.opcode == RTYPE || cuif.opcode == BEQ || cuif.opcode == BNE) ? 0 : 1;
-assign cuif.branch = (cuif.opcode == BEQ || cuif.opcode == BNE) ? 1 : 0;
-assign cuif.memtoReg = (cuif.opcode == LW  ||
-                        cuif.opcode == LBU ||
-                        cuif.opcode == LHU) ? 1 : 0;
-assign cuif.memWrite = (cuif.opcode == SB  ||
-                        cuif.opcode == SH  ||
-                        cuif.opcode == SW) ? 1 : 0;
-assign cuif.memRead = (cuif.opcode == LW   ||
-                       cuif.opcode == LBU  ||
-                       cuif.opcode == LHU  ||
-                       cuif.opcode == LL) ? 1 : 0;
-assign cuif.regWrite = (cuif.opcode == BEQ ||
-                        cuif.opcode == BNE ||
-                        cuif.opcode == SB  ||
-                        cuif.opcode == SW  ||
-                        cuif.opcode == SH  ||
-                        cuif.opcode == J   ||
-                        cuif.opcode == JAL ||
-                        cuif.func == JR) ? 0 : 1;
-assign cuif.shift = ((cuif.opcode == RTYPE && cuif.func == SLL) ||
-                     (cuif.opcode == RTYPE && cuif.func == SRL)) ? 1 : 0;
-assign cuif.lui = (cuif.opcode == LUI) ? 1 : 0;
-assign cuif.iRequest = 1;
-assign cuif.dRequest = cuif.memWrite || cuif.memRead;
-assign cuif.extend = (cuif.opcode == ORI || cuif.opcode == XORI || cuif.opcode == ANDI) ? 0 : 1;
-assign cuif.halt = (cuif.opcode == HALT || (cuif.vflag && cuif.func != ADDU && cuif.opcode != ADDIU)) ? 1 : 0;
+assign cuif.regDst = signals[12];
+assign cuif.regWrite = signals[11];
+assign cuif.memRead = signals[10];
+assign cuif.memWrite = signals[9];
+assign cuif.memtoReg = signals[8];
+assign cuif.shift = signals[7];
+assign cuif.lui = signals[6];
+assign cuif.branch = signals[5];
+assign cuif.jump = signals[4:3];
+assign cuif.extend = signals[2];
+assign cuif.alusrc = signals[1];
+assign cuif.halt = signals[0];
+assign cuif.iRequest = (nRST) ? 1 : 0;
+assign cuif.dRequest = signals[10] || signals[9];
 
 endmodule

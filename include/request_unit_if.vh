@@ -21,7 +21,7 @@ interface request_unit_if;
   logic iREN, dREN, dWEN;
 
   // input from datapath
-  word_t pc, d_addr, writeData;
+  word_t pc, d_addr, writeData, readData;
   logic iRequest, dRequest, memWrite, memRead;
   // output to datapath
   r_t rdata;
@@ -32,7 +32,7 @@ interface request_unit_if;
     // input
     input iload, dload, ihit, dhit, pc, d_addr, writeData, iRequest, dRequest, memWrite, memRead,
     // output
-    output iaddr, daddr, dstore, iREN, dREN, dWEN, rdata, jdata, idata
+    output iaddr, daddr, dstore, iREN, dREN, dWEN, rdata, jdata, idata, readData
   );
 
 endinterface
