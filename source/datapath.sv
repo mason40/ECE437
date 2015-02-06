@@ -45,7 +45,13 @@ module datapath (
 
   assign imm = (cuif.extend) ? {{16{dpif.imemload[15]}},dpif.imemload[15:0]}
                              : {16'h0000,dpif.imemload[15:0]};
-
+  /*always_ff @ (posedge CLK, negedge nRST) begin
+    if(!nRST) begin
+      dpif.halt <= 0;
+    end else begin
+      dpif.halt <= cuif.halt;
+    end
+  end*/
   always_comb begin
     if(!nRST | cuif.halt) begin
       dpif.imemREN = 0;
@@ -63,16 +69,6 @@ module datapath (
     end else begin
       aluif.portb = rfif.rdat2;
     end
-    /*if(ruif.jdata.opcode == JAL) begin
-      rfif.wsel = 31;
-      rfif.wdat = pc;
-    end else if(cuif.memtoReg) begin
-      rfif.wsel = ruif.rdata.rt;
-      rfif.wdat = dpif.dmemload;
-    end else begin
-      rfif.wsel = ruif.rdata.rd;
-      rfif.wdat = aluif.portout;
-    end*/
   end
 
   // routing PC inputs
@@ -111,7 +107,7 @@ module datapath (
   assign ruif.dhit = dpif.dhit;
   assign ruif.iload = dpif.imemload;
   assign ruif.dload = dpif.dmemload;
-  assign ruif.halt = cuif.halt;
+  //assign ruif.halt = cuif.halt;
   // routing datapath
 //  assign dpif.imemREN = ruif.iREN;
   assign dpif.dmemREN = ruif.dREN;

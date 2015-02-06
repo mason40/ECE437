@@ -18,10 +18,21 @@ module control_unit (
 
 logic [12:0] signals;
 logic halt = 1'b0;
-logic s;
+
+always_ff @ (posedge CLK, negedge nRST) begin
+  if(!nRST) begin
+    cuif.halt = 0;
+  end else begin
+    if(signals[0] || cuif.instr == 32'hffffffff) begin
+      cuif.halt = 1'b1;
+    end else begin
+      cuif.halt = 1'b0;
+    end
+  end
+end
 
 always_comb begin
-  signals = '0;
+  //signals = '0;
   if(cuif.opcode == RTYPE) begin
     casez(cuif.func) // rtype decoding
       SLL : begin
@@ -145,9 +156,9 @@ always_comb begin
       end
     endcase // end of itype and jtype
   end
-  if(signals[0] || cuif.instr == 32'hffffffff) begin
+  /*if(signals[0] || cuif.instr == 32'hffffffff) begin
     halt = 1;
-  end
+  end*/
 end
 
 assign cuif.regDst = signals[12];
@@ -162,5 +173,5 @@ assign cuif.jump = signals[4:3];
 assign cuif.extend = signals[2];
 assign cuif.alusrc = signals[1];
 assign cuif.iren = (nRST & ~cuif.halt & ~cuif.dren);
-assign cuif.halt = halt;
+//assign cuif.halt = halt;
 endmodule

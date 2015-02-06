@@ -34,11 +34,13 @@ module memory_control (
     if(!nRST) begin
       ccif.iwait[CPUID] = 1'b0;
       ccif.dwait[CPUID] = 1'b0;
+      ccif.iload[CPUID] = '0;
+      ccif.dload[CPUID] = '0;
     end
     casez(ccif.ramstate)
       ACCESS : begin
-        ccif.iwait = (ccif.dWEN[CPUID]||ccif.dREN[CPUID]) ? 1'b1 : 1'b0;
-        ccif.dwait = (ccif.iREN[CPUID] && ~ccif.dREN[CPUID] && ~ccif.dWEN[CPUID]) ? 1'b1 : 1'b0;
+        ccif.iwait[CPUID] = (ccif.dWEN[CPUID]||ccif.dREN[CPUID]) ? 1'b1 : 1'b0;
+        ccif.dwait[CPUID] = (ccif.iREN[CPUID] && ~ccif.dREN[CPUID] && ~ccif.dWEN[CPUID]) ? 1'b1 : 1'b0;
         ccif.iload[CPUID] = ccif.ramload;
         ccif.dload[CPUID] = ccif.ramload;
       end
@@ -51,10 +53,14 @@ module memory_control (
       FREE : begin
         ccif.iwait[CPUID] = 1'b1;
         ccif.dwait[CPUID] = 1'b1;
+        ccif.iload[CPUID] = '0;
+        ccif.dload[CPUID] = '0;
       end
       default : begin
         ccif.iwait[CPUID] = 1'b1;
         ccif.dwait[CPUID] = 1'b1;
+        ccif.iload[CPUID] = '0;
+        ccif.dload[CPUID] = '0;
       end
     endcase
   end
