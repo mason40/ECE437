@@ -22,14 +22,42 @@ module control_unit_tb;
   test PROG(CLK, nRST, cuif);
 
   `ifndef MAPPED
-    control_unit DUT(cuif);
+    control_unit DUT(CLK, nRST, cuif);
   `endif
 endmodule
 
 program test (input logic CLK, output logic nRST, control_unit_if.cu cuif);
   import cpu_types_pkg::*;
   initial begin
-    $monitor("opcode = %s, funct = %s, ALUop = %s, ALUsrc = %b\nregDst = %b, regWrite = %b, memtoReg = %b, memRead = %b, memWrite = %b\nbranch = %b, shift = %b, jump = %2b, extend = %b\n",
+    /* initializing*/
+    cuif.vflag = 1'b0;
+    cuif.opcode = HALT;
+    cuif.func = ADD;
+    cuif.iReady = 1'b0;
+    cuif.dReady = 1'b0;
+    nRST = 1'b0;
+    // testing Rtype
+    cuif.opcode = RTYPE;
+    cuif.func = ADD;
+    @(posedge CLK);
+    nRST = 1'b1;
+    #(1);
+    cuif.iReady = 1'b1;
+    cuif.dReady = 1'b0;
+    // testing LW
+    cuif.iReady = 1'b0;
+    cuif.dReady = 1'b0;
+    @(posedge CLK);
+    #(1);
+    cuif.opcode = LW;
+    cuif.iReady = 1'b1;
+    #(control_unit_tb.PERIOD*2);
+    #(2);
+    cuif.dReady = 1'b1;
+    @(posedge CLK);
+
+
+    /*$monitor("opcode = %s, funct = %s, ALUop = %s, ALUsrc = %b\nregDst = %b, regWrite = %b, memtoReg = %b, memRead = %b, memWrite = %b\nbranch = %b, shift = %b, jump = %2b, extend = %b\n",
               cuif.opcode, cuif.func, cuif.aluop, cuif.alusrc,
               cuif.regDst, cuif.regWrite, cuif.memtoReg, cuif.memRead,cuif.memWrite,
               cuif.branch, cuif.regWrite, cuif.jump, cuif.extend);
@@ -86,6 +114,6 @@ program test (input logic CLK, output logic nRST, control_unit_if.cu cuif);
     cuif.opcode = RTYPE;
     cuif.func = JR;
     #(control_unit_tb.PERIOD);
-
+    */
   end
 endprogram

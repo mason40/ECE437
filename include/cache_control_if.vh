@@ -25,6 +25,9 @@ interface cache_control_if;
   logic   [CPUS-1:0]       iwait, dwait, iREN, dREN, dWEN;
   word_t  [CPUS-1:0]       iload, dload, dstore;
   word_t  [CPUS-1:0]       iaddr, daddr;
+  //logic iwait, dwait, iREN, dREN, dWEN;
+  //word_t iload, dload, dstore;
+  //word_t iaddr, daddr;
 
   // coherence
   // CPUS = number of cpus parameter passed from system -> cc

@@ -17,17 +17,20 @@ module control_unit (
 );
 
 logic [12:0] signals;
+logic halt = 1'b0;
+logic s;
 
 always_comb begin
+  signals = '0;
   if(cuif.opcode == RTYPE) begin
     casez(cuif.func) // rtype decoding
       SLL : begin
         cuif.aluop = ALU_SLL;
-        signals = 13'b1100010000000;
+        signals = 13'b1100010000010;
       end
       SRL : begin
         cuif.aluop = ALU_SRL;
-        signals = 13'b1100010000000;
+        signals = 13'b1100010000010;
       end
       JR : begin
         cuif.aluop = ALU_ADD;
@@ -74,18 +77,18 @@ always_comb begin
         signals = 13'b1100000000000;
       end
       default : begin
-        cuif.aluop = ALU_ADD;
+        cuif.aluop = ALU_SLL;
         signals = '0;
       end
     endcase // end of the rtype case
   end else begin
     casez(cuif.opcode) // itype and jtype
       BEQ : begin
-        cuif.aluop = ALU_SLT;
+        cuif.aluop = ALU_SUB;
         signals = 13'b0000000100000;
       end
       BNE : begin
-        cuif.aluop = ALU_SLT;
+        cuif.aluop = ALU_SUB;
         signals = 13'b0000000100000;
       end
       ADDI: begin
@@ -117,16 +120,16 @@ always_comb begin
         signals = 13'b0100000000010;
       end
       LUI : begin
-        cuif.aluop = ALU_SLL;
+        cuif.aluop = ALU_ADD;
         signals = 13'b0100001000010;
       end
       LW  : begin
         cuif.aluop = ALU_ADD;
-        signals = 13'b0110100000110;
+        signals = 13'b0111000000110;
       end
       SW  : begin
         cuif.aluop = ALU_ADD;
-        signals = 13'b0001000000110;
+        signals = 13'b0000100000110;
       end
       J   : begin
         cuif.aluop = ALU_ADD;
@@ -134,33 +137,30 @@ always_comb begin
       end
       JAL : begin
         cuif.aluop = ALU_ADD;
-        signals = 13'b0000000011000;
-      end
-      HALT: begin
-        cuif.aluop = ALU_ADD;
-        signals = 13'b0000000000001;
+        signals = 13'b0100000011000;
       end
       default : begin
-        cuif.aluop = ALU_ADD;
+        cuif.aluop = ALU_SLL;
         signals = '0;
       end
     endcase // end of itype and jtype
+  end
+  if(signals[0] || cuif.instr == 32'hffffffff) begin
+    halt = 1;
   end
 end
 
 assign cuif.regDst = signals[12];
 assign cuif.regWrite = signals[11];
-assign cuif.memRead = signals[10];
-assign cuif.memWrite = signals[9];
-assign cuif.memtoReg = signals[8];
+assign cuif.memtoReg = signals[10];
+assign cuif.dren = signals[9];
+assign cuif.dwen = signals[8];
 assign cuif.shift = signals[7];
 assign cuif.lui = signals[6];
 assign cuif.branch = signals[5];
 assign cuif.jump = signals[4:3];
 assign cuif.extend = signals[2];
 assign cuif.alusrc = signals[1];
-assign cuif.halt = signals[0];
-assign cuif.iRequest = (nRST) ? 1 : 0;
-assign cuif.dRequest = signals[10] || signals[9];
-
+assign cuif.iren = (nRST & ~cuif.halt & ~cuif.dren);
+assign cuif.halt = halt;
 endmodule

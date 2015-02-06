@@ -17,23 +17,25 @@ always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     pcif.cpc <= '0;
   end else begin
-    pcif.cpc <= npc;
+    if(pcif.pcen) begin
+      pcif.cpc <= npc;
+    end
   end
 end
 
 always_comb begin
-  npc = (pcif.branch) ? ((pcif.cpc+4)+(pcif.imm<<2)) : pcif.cpc+4;
-  casez(pcif.jump)
-    2'b00 : begin
-      npc = npc;
-    end
-    2'b11 : begin
-      npc = pcif.jaddr;
-    end
-    2'b01 : begin
-      npc = pcif.regtarget;
-    end
-  endcase
+    casez(pcif.jump)
+      2'b00 : begin
+        npc = (pcif.branch)? ((pcif.cpc+4) + ({{16{pcif.imm[15]}},pcif.imm}<<2)) : pcif.cpc+4;
+      end
+      2'b11 : begin
+        npc = pcif.cpc + 4;
+        npc = {npc[31:28],pcif.jaddr[25:0],2'b00};
+      end
+      2'b01 : begin
+        npc = pcif.regtarget;
+      end
+    endcase
 end
 
 endmodule

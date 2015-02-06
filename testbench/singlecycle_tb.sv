@@ -24,7 +24,6 @@ module singlecycle_tb;
 
   `ifndef MAPPED
     singlecycle PROC(CLK, nRST, halt, crif);
-    ram RAM(CLK, nRST, crif);
   `endif
 endmodule
 
@@ -33,16 +32,21 @@ program test(
   output logic nRST,
   cpu_ram_if.cpu crif
 );
+  import cpu_types_pkg::*;
 
   int i;
   initial begin
+    // initialization
+    crif.ramstate = FREE;
+    crif.ramload = '0;
     nRST = 1'b0;
     #(10);
     nRST = 1'b1;
+    @(posedge CLK);
+    crif.ramstate = ACCESS;
+    crif.ramload = '1;
     #(singlecycle_tb.PERIOD);
-    $monitor("ramstate = %s, addr = %h, ren = %b", crif.ramstate, crif.memaddr,crif.memREN);
-    for(i = 0; i < 10; i++) begin
-      #(singlecycle_tb.PERIOD);
-    end
+    #(singlecycle_tb.PERIOD);
+    #(singlecycle_tb.PERIOD);
   end
 endprogram

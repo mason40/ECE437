@@ -28,9 +28,19 @@ always_comb begin
     end
     ALU_ADD : begin
       aluif.portout = aluif.porta + aluif.portb;
+      if((aluif.porta[31]&aluif.portb[31]&~aluif.portout[31])|(~aluif.portb[31]&~aluif.porta[31]&aluif.portout[31])) begin
+        aluif.v_flag = 1'b1;
+      end else begin
+        aluif.v_flag = 1'b0;
+      end
     end
     ALU_SUB : begin
       aluif.portout = aluif.porta - aluif.portb;
+      if(aluif.porta[31] != aluif.portb[31]) begin
+        aluif.v_flag = 1'b1;
+      end else begin
+        aluif.v_flag = 1'b0;
+      end
     end
     ALU_AND : begin
       aluif.portout = aluif.porta & aluif.portb;
@@ -65,6 +75,6 @@ end
 
 assign aluif.z_flag = (aluif.portout == 0) ? 1 : 0;
 assign aluif.n_flag = (aluif.portout[31] == 1'b1) ? 1 : 0;
-assign aluif.v_flag = (~(aluif.porta[31]^aluif.portb[31]))&(aluif.portout[31]^aluif.porta[31]);
+//assign aluif.v_flag = (~(aluif.porta[31]^aluif.portb[31]))&(aluif.portout[31]^aluif.porta[31]);
 
 endmodule

@@ -23,9 +23,9 @@ parameter PC0 = 0;
   // map datapath
   datapath #(.PC_INIT(PC0)) DP (CLK, nRST, dcif);
   // map caches
-  caches #(.CPUID(0))       CM (CLK, nRST, dcif, ccif);
+  caches CM (CLK, nRST, dcif, ccif);
   // map coherence
-  memory_control            CC (CLK, nRST, ccif);
+  memory_control #(.CPUID(0)) CC (CLK, nRST, ccif);
 
   // interface connections
   assign scif.memaddr = ccif.ramaddr;

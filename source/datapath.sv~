@@ -23,8 +23,17 @@ module datapath (
   datapath_cache_if.dp dpif
 );
   import cpu_types_pkg::word_t;
-  word_t imm;
+  word_t imm, pc;
+  always_ff @ (posedge CLK, negedge nRST) begin
+    if(!nRST) begin
+      pc <= '0;
+    end else begin
+      pc <= pcif.cpc;
+    end
+  end
 
+  assign imm = (cuif.extend) ? {{16{dpif.imemload[15]}}, dpif.imemload[15:0]}
+                             : {16'h0000,dpif.imemload[15:0]};
   // import types
   import cpu_types_pkg::*;
   control_unit_if cuif();
@@ -43,8 +52,13 @@ module datapath (
   alu ALU(aluif);
   request_unit RU(CLK, nRST, ruif);
 
-  assign imm = (cuif.extend) ? {{16{dpif.imemload[15]}},dpif.imemload[15:0]}
-                             : {16'h0000,dpif.imemload[15:0]};
+  always_ff @ (posedge CLK, negedge nRST) begin
+    if(!nRST) begin
+      pc <= '0;
+    end else begin
+      pc <= pcif.cpc;
+    end
+  end
 
   always_comb begin
     if(!nRST | cuif.halt) begin

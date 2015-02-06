@@ -24,44 +24,51 @@ module memory_control (
   parameter CPUS = 2;
   parameter CPUID = 0;
   logic iren, dren, dwen;
-  always_ff @(posedge CLK) begin
-    iren <= ccif.iREN[CPUID];
-    dren <= ccif.dREN[CPUID];
-    dwen <= ccif.dWEN[CPUID];
+
+  always_ff @ (CLK, negedge nRST) begin
+    if(!nRST) begin
+      iren <= 0;
+      dren <= 0;
+      dwen <= 0;
+    end else begin
+      iren <= ccif.iREN[CPUID];
+      dren <= ccif.dREN[CPUID];
+      dwen <= ccif.dWEN[CPUID];
+    end
   end
+
   // priority bus selection
   always_comb begin
     if(!nRST) begin
       ccif.iwait[CPUID] = 1'b0;
       ccif.dwait[CPUID] = 1'b0;
+      //ccif.iwait = 1'b0;
+      //ccif.dwait = 1'b0;
     end
     casez(ccif.ramstate)
       ACCESS : begin
-        ccif.iwait = (ccif.dWEN[CPUID]||ccif.dREN[CPUID]) ? 1'b1 : 1'b0;
-        ccif.dwait = (ccif.iREN[CPUID] && ~ccif.dREN[CPUID] && ~ccif.dWEN[CPUID]) ? 1'b1 : 1'b0;
-        ccif.iload[CPUID] = ccif.ramload;
-        ccif.dload[CPUID] = ccif.ramload;
+        if(ccif.dWEN[CPUID] || ccif.dREN[CPUID]) begin
+          ccif.dwait[CPUID] = 1'b0;
+          ccif.iwait[CPUID] = 1'b1;
+          ccif.dload[CPUID] = ccif.ramload;
+        end else if(ccif.iREN[CPUID]) begin
+          ccif.iwait[CPUID] = 1'b0;
+          ccif.iload[CPUID] = ccif.ramload;
+        end
       end
       BUSY : begin
         ccif.iwait[CPUID] = 1'b1;
         ccif.dwait[CPUID] = 1'b1;
-        ccif.iload[CPUID] = '0;
-        ccif.dload[CPUID] = '0;
+        ccif.iload[CPUID] = 32'h00000000;
+        ccif.dload[CPUID] = 32'h00000000;
       end
       FREE : begin
-        ccif.iwait[CPUID] = 1'b1;
-        ccif.dwait[CPUID] = 1'b1;
-      end
-      default : begin
-        ccif.iwait[CPUID] = 1'b1;
-        ccif.dwait[CPUID] = 1'b1;
+        ccif.iwait[CPUID] = 1'b0;
+        ccif.dwait[CPUID] = 1'b0;
       end
     endcase
   end
-  //assign ccif.iload[CPUID] = (~ccif.iwait[CPUID]) ? ccif.ramload : ccif.iload[CPUID];
-  //assign ccif.dload[CPUID] = (~ccif.dwait[CPUID]) ? ccif.ramload : ccif.dload[CPUID];
-  //assign ccif.ramREN = (ccif.dREN[CPUID]&&~ccif.dWEN[CPUID])? ccif.dREN[CPUID] : ccif.iREN[CPUID];
-  assign ccif.ramREN = !ccif.dWEN[CPUID] &&(ccif.dREN[CPUID]||ccif.iREN[CPUID]);
+  assign ccif.ramREN = (ccif.dREN[CPUID] || ccif.dWEN[CPUID])? ccif.dREN[CPUID] : ccif.iREN[CPUID];
   assign ccif.ramWEN = ccif.dWEN[CPUID];
   assign ccif.ramaddr = (ccif.dREN[CPUID]||ccif.dWEN[CPUID])? ccif.daddr[CPUID] : ccif.iaddr[CPUID];
   assign ccif.ramstore = ccif.dstore[CPUID];

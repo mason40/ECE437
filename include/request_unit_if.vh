@@ -6,8 +6,8 @@
     Request Unit Interface
 */
 
-`ifndef "REQUEST_UNIT_IF_VH"
-`define "REQUEST_UNIT_IF_VH"
+`ifndef REQUEST_UNIT_IF_VH
+`define REQUEST_UNIT_IF_VH
 `include "cpu_types_pkg.vh"
 interface request_unit_if;
   import cpu_types_pkg::*;
@@ -18,11 +18,12 @@ interface request_unit_if;
   logic ihit, dhit;
   //output to cache
   word_t iaddr, daddr, dstore;
-  logic iREN, dREN, dWEN;
+  logic iREN, dREN, dWEN, pcen;
+  logic halt;
 
   // input from datapath
   word_t pc, d_addr, writeData, readData;
-  logic iRequest, dRequest, memWrite, memRead;
+  logic iren, dren, dwen;
   // output to datapath
   r_t rdata;
   i_t idata;
@@ -30,9 +31,9 @@ interface request_unit_if;
 
   modport ru (
     // input
-    input iload, dload, ihit, dhit, pc, d_addr, writeData, iRequest, dRequest, memWrite, memRead,
+    input iload, dload, ihit, dhit, pc, d_addr, writeData, iren, dren, dwen, halt,
     // output
-    output iaddr, daddr, dstore, iREN, dREN, dWEN, rdata, jdata, idata, readData
+    output iaddr, daddr, dstore, iREN, dREN, dWEN, rdata, jdata, idata, readData, pcen
   );
 
 endinterface

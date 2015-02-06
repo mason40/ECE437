@@ -22,14 +22,15 @@ interface control_unit_if;
   aluop_t aluop;
   logic alusrc;
   // output from control unit
-  logic memtoReg, memWrite, memRead,regWrite, iRequest, dRequest, regDst, branch, shift, lui, extend, halt;
+  logic memtoReg,regWrite, iren, dren, dwen, regDst, branch, shift, lui, extend, halt;
   logic [1:0] jump;
+  word_t instr;
 
   modport cu (
     // input
-    input opcode, func, vflag,
+    input opcode, func, vflag, instr,
     // output
-    output aluop, alusrc, memtoReg, memWrite, memRead, regWrite, iRequest, dRequest, regDst, jump, branch, lui, shift,extend, halt
+    output aluop, alusrc, memtoReg, regWrite, iren, dren, dwen, regDst, jump, branch, lui, shift,extend, halt
   );
 endinterface
 `endif
