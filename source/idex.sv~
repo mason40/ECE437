@@ -1,0 +1,39 @@
+/*  Jason Lin
+    mg208
+    lin57@purdue.edu
+    2/7/2015
+
+    ID/EX register
+*/
+
+`include "idex_if.vh"
+
+module idex (
+  input logic CLK,
+  input logic nRST,
+  idex_if idex
+);
+
+always_ff @ (posedge CLK, negedge nRST) begin
+  if(!nRST) begin
+    idex.out_cpc <= 0;
+    idex.out_aluop <= RTYPE;
+    idex.out_regDst <= 0;
+    idex.out_alusrc <= 0;
+    idex.out_shift <= 0;
+    idex.out_lui <= 0;
+    idex.out_jump <= 0;
+    idex.out_branch <=0;
+    idex.out_dren <= 0;
+    idex.out_dwen <= 0;
+    idex.out_memtoReg <=0;
+    idex.out_regWrite <=0;
+    idex.out_halt <= 0;
+    idex.out_rdat1 <= 0;
+    idex.out_rdat2 <= 0;
+    idex.out_imm <= 0;
+    idex.out_rt <= 0;
+    idex.out_rd <= 0;
+    idex.out_jaddr <= 0;
+  end else begin
+    idex.out_cpc <= idex.in_cpc;
