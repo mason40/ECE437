@@ -12,6 +12,7 @@
 module ifid (
   input logic CLK,
   input logic nRST,
+  input logic en,
   ifid_if ifid
 );
 
@@ -20,7 +21,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     ifid.out_iload <= '0;
     ifid.out_cpc <= '0;
-  end else begin
+  end else if(en) begin
     ifid.out_iload <= ifid.in_iload;
     ifid.out_cpc <= ifid.in_cpc;
   end

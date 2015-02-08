@@ -22,7 +22,7 @@ module register_file(
 // internal variable declaration
 word_t rfile [32];
 
-always_ff @ (posedge CLK, negedge nRST) begin
+always_ff @ (CLK, negedge nRST) begin
   if(~nRST) begin
     rfile <= '{default:'0};
   end else if(rfif.WEN && rfif.wsel != 0) begin

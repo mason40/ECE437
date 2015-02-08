@@ -13,6 +13,10 @@
 `include "alu_if.vh"
 `include "pc_if.vh"
 `include "request_unit_if.vh"
+`include "ifid_if.vh"
+`include "idex_if.vh"
+`include "exmem_if.vh"
+`include "memwb_if.vh"
 `include "cpu_types_pkg.vh"
 
 // alu op, mips op, and instruction type
@@ -23,7 +27,8 @@ module datapath (
   datapath_cache_if.dp dpif
 );
   import cpu_types_pkg::word_t;
-  word_t imm;
+  word_t npc;
+  logic enable;
 
   // import types
   import cpu_types_pkg::*;
@@ -32,88 +37,125 @@ module datapath (
   alu_if aluif();
   pc_if pcif();
   request_unit_if ruif();
+  ifid_if ifid();
+  idex_if idex();
+  exmem_if exmem();
+  memwb_if memwb();
 
   // pc init
   parameter PC_INIT = 0;
-
+  assign enable = (exmem.out_opcode == LW || exmem.out_opcode == SW) ? dpif.dhit : dpif.ihit;
   //mapping control unit, regfile, alu and request unit, pc
   pc PC(CLK, nRST, pcif);
   control_unit CU(CLK, nRST,cuif);
   register_file RF(CLK, nRST, rfif);
   alu ALU(aluif);
   request_unit RU(CLK, nRST, ruif);
+  ifid FD(CLK, nRST, enable, ifid);
+  idex DX(CLK, nRST, enable, idex);
+  exmem XM(CLK, nRST, enable, exmem);
+  memwb MB(CLK, nRST, enable, memwb);
 
-  assign imm = (cuif.extend) ? {{16{dpif.imemload[15]}},dpif.imemload[15:0]}
-                             : {16'h0000,dpif.imemload[15:0]};
-  /*always_ff @ (posedge CLK, negedge nRST) begin
-    if(!nRST) begin
-      dpif.halt <= 0;
-    end else begin
-      dpif.halt <= cuif.halt;
-    end
-  end*/
+  // fetch state
+  assign pcif.branch = exmem.out_branch && exmem.out_zflag;
+  assign pcif.pcen = ruif.pcen;
+  assign dpif.imemaddr = pcif.cpc;
+  assign ruif.ihit = dpif.ihit;
+  assign ruif.dhit = dpif.dhit;
+  assign ifid.in_cpc = pcif.cpc;
+  assign ifid.in_iload = dpif.imemload;
   always_comb begin
-    if(!nRST | cuif.halt) begin
+    if(!nRST | (memwb.out_halt&ruif.dREN)) begin
       dpif.imemREN = 0;
     end else begin
       dpif.imemREN = 1;
     end
-    if(cuif.alusrc) begin
-      if(cuif.shift) begin
-        aluif.portb = dpif.imemload[10:6];
-      end else if(cuif.lui) begin
-        aluif.portb = (dpif.imemload[15:0]<<16);
+  end
+  // decode state
+  assign cuif.opcode = opcode_t'(ifid.out_iload[31:26]);
+  assign cuif.func = funct_t'(ifid.out_iload[5:0]);
+  assign cuif.vflag = aluif.v_flag;
+  assign cuif.instr = ifid.out_iload;
+  assign rfif.rsel1 = regbits_t'(ifid.out_iload[25:21]);
+  assign rfif.rsel2 = regbits_t'(ifid.out_iload[20:16]);
+  assign idex.in_cpc = ifid.out_cpc;
+  assign idex.in_aluop = cuif.aluop;
+  assign idex.in_regDst = cuif.regDst;
+  assign idex.in_alusrc = cuif.alusrc;
+  assign idex.in_shift = cuif.shift;
+  assign idex.in_lui = cuif.lui;
+  assign idex.in_jump = cuif.jump;
+  assign idex.in_branch = cuif.branch;
+  assign idex.in_dren = cuif.dren;
+  assign idex.in_dwen = cuif.dwen;
+  assign idex.in_memtoReg = cuif.memtoReg;
+  assign idex.in_regWrite = cuif.regWrite;
+  assign idex.in_halt = cuif.halt;
+  assign idex.in_rdat1 = rfif.rdat1;
+  assign idex.in_rdat2 = rfif.rdat2;
+  assign idex.in_imm = (cuif.extend) ? {{16{ifid.out_iload[15]}},ifid.out_iload[15:0]} : {16'h0000, ifid.out_iload[15:0]};
+  assign idex.in_rt = regbits_t'(ifid.out_iload[20:16]);
+  assign idex.in_rd = regbits_t'(ifid.out_iload[15:11]);
+  assign idex.in_jaddr = ifid.out_iload[25:0];
+  assign idex.in_shamt = ifid.out_iload[10:6];
+  assign idex.in_opcode = opcode_t'(ifid.out_iload[31:26]);
+  // execute state
+  assign aluif.porta = idex.out_rdat1;
+  always_comb begin
+    if(idex.out_alusrc) begin
+      if(idex.out_shift) begin
+        aluif.portb = idex.out_shamt;
+      end else if(idex.out_lui) begin
+        aluif.portb = idex.out_imm << 16;
       end else begin
-        aluif.portb = imm;
+        aluif.portb = idex.out_imm;
       end
     end else begin
-      aluif.portb = rfif.rdat2;
+      aluif.portb = idex.out_rdat2;
     end
   end
-
-  // routing PC inputs
-  assign pcif.imm = imm;
-  assign pcif.jaddr = dpif.imemload[25:0];//ruif.jdata.addr;
-  assign pcif.branch = cuif.branch && aluif.z_flag;
-  assign pcif.jump = cuif.jump;
-  assign pcif.regtarget = rfif.rdat1;
-  assign pcif.pcen = ruif.pcen;
-  // routing control unit
-  assign cuif.opcode = '{dpif.imemload[31:26]};//ruif.rdata.opcode;
-  assign cuif.func = '{dpif.imemload[5:0]};//ruif.rdata.funct;
-  assign cuif.vflag = aluif.v_flag;
-  assign cuif.instr = '{dpif.imemload};
-  // routing register file
-  assign rfif.WEN = cuif.regWrite;
-  assign rfif.rsel1 = dpif.imemload[25:21];//ruif.rdata.rs;
-  assign rfif.rsel2 = dpif.imemload[20:16];//ruif.rdata.rt;
-  assign rfif.wsel = (dpif.imemload[31:26] == JAL) ? 31 : ((cuif.regDst) ? dpif.imemload[15:11] : dpif.imemload[20:16]);
-  assign rfif.wdat = (dpif.imemload[31:26] == JAL) ? 31 : ((cuif.memtoReg) ? dpif.dmemload : aluif.portout);
-  //routing ALU
-  assign aluif.porta = rfif.rdat1;
-  /*assign aluif.portb = (cuif.alusrc) ? imm :
-                       ((cuif.shift) ? ruif.rdata.shamt :
-                       ((cuif.lui) ? {ruif.idata.imm,'0} : rfif.rdat2));
-*/
-  assign aluif.aluop = cuif.aluop;
-  // routing request unit
-  assign ruif.pc = pcif.cpc;
-  assign ruif.d_addr = aluif.portout;
-  assign ruif.writeData = rfif.rdat2;
-  assign ruif.iren = cuif.iren;
-  assign ruif.dren = cuif.dren;
-  assign ruif.dwen = cuif.dwen;
-  assign ruif.ihit = dpif.ihit;
-  assign ruif.dhit = dpif.dhit;
-  assign ruif.iload = dpif.imemload;
-  assign ruif.dload = dpif.dmemload;
-  //assign ruif.halt = cuif.halt;
-  // routing datapath
-//  assign dpif.imemREN = ruif.iREN;
+  assign aluif.aluop = idex.out_aluop;
+  assign exmem.in_cpc = idex.out_cpc;
+  assign exmem.in_regWrite = idex.out_regWrite;
+  assign exmem.in_memtoReg = idex.out_memtoReg;
+  assign exmem.in_halt = idex.out_halt;
+  assign exmem.in_jump = idex.out_jump;
+  assign exmem.in_branch = idex.out_branch;
+  assign exmem.in_zflag = aluif.z_flag;
+  assign exmem.in_dren = idex.out_dren;
+  assign exmem.in_dwen = idex.out_dwen;
+  assign exmem.in_wsel = (idex.out_regDst) ? idex.out_rd : idex.out_rt;
+  assign exmem.in_aluout = aluif.portout;
+  assign exmem.in_writeData = idex.out_rdat2;
+  assign exmem.in_imm = idex.out_imm;
+  assign exmem.in_jaddr = idex.out_jaddr;
+  assign exmem.in_opcode = idex.out_opcode;
+  assign exmem.in_regtarget = idex.out_rdat1;
+  //mem state
+  assign ruif.dren = exmem.out_dren;
+  assign ruif.dwen = exmem.out_dwen;
   assign dpif.dmemREN = ruif.dREN;
   assign dpif.dmemWEN = ruif.dWEN;
-  assign dpif.imemaddr = pcif.cpc;
-  assign dpif.dmemaddr = aluif.portout;//ruif.daddr;
-  assign dpif.dmemstore = rfif.rdat2;
-  assign dpif.halt = cuif.halt;
+  assign dpif.dmemaddr = exmem.out_aluout;
+  assign dpif.dmemstore = exmem.out_writeData;
+  assign memwb.in_regWrite = exmem.out_regWrite;
+  assign memwb.in_memtoReg = exmem.out_memtoReg;
+  assign memwb.in_halt = exmem.out_halt;
+  assign memwb.in_readData = (ruif.dhit) ? dpif.dmemload : memwb.in_readData;
+  assign memwb.in_aluout = exmem.out_aluout;
+  assign memwb.in_opcode = exmem.out_opcode;
+  assign memwb.in_jaddr = exmem.out_jaddr;
+  assign memwb.in_cpc = exmem.out_cpc;
+  assign memwb.in_regtarget = exmem.out_regtarget;
+  assign memwb.in_wsel = exmem.out_wsel;
+  assign memwb.in_jump = exmem.out_jump;
+  // write back state
+  assign dpif.halt = memwb.out_halt;
+  assign npc = memwb.out_cpc + 4;
+  assign rfif.wdat = (memwb.out_opcode == JAL) ? {npc[31:28],memwb.out_jaddr,2'b00} : ((memwb.out_memtoReg) ? memwb.out_readData : memwb.out_aluout);
+  assign rfif.WEN = memwb.out_regWrite;
+  assign rfif.wsel = (memwb.out_opcode == JAL) ? 31 : memwb.out_wsel;
+  assign pcif.imm = exmem.out_imm;
+  assign pcif.regtarget = memwb.out_regtarget;
+  assign pcif.jump = memwb.out_jump;
 endmodule
