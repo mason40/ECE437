@@ -36,7 +36,7 @@ module datapath (
   register_file_if rfif();
   alu_if aluif();
   pc_if pcif();
-  request_unit_if ruif();
+  //request_unit_if ruif();
   ifid_if ifid();
   idex_if idex();
   exmem_if exmem();
@@ -50,7 +50,7 @@ module datapath (
   control_unit CU(CLK, nRST,cuif);
   register_file RF(CLK, nRST, rfif);
   alu ALU(aluif);
-  request_unit RU(CLK, nRST, ruif);
+  //request_unit RU(CLK, nRST, ruif);
   ifid FD(CLK, nRST, enable, ifid);
   idex DX(CLK, nRST, enable, idex);
   exmem XM(CLK, nRST, enable, exmem);
@@ -58,14 +58,14 @@ module datapath (
 
   // fetch state
   assign pcif.branch = exmem.out_branch && exmem.out_zflag;
-  assign pcif.pcen = ruif.pcen;
+  assign pcif.pcen = nRST && dpif.ihit && ~dpif.dhit;
   assign dpif.imemaddr = pcif.cpc;
-  assign ruif.ihit = dpif.ihit;
-  assign ruif.dhit = dpif.dhit;
+  //assign ruif.ihit = dpif.ihit;
+  //assign ruif.dhit = dpif.dhit;
   assign ifid.in_cpc = pcif.cpc;
   assign ifid.in_iload = dpif.imemload;
   always_comb begin
-    if(!nRST | (memwb.out_halt&ruif.dREN)) begin
+    if(!nRST | (memwb.out_halt& dpif.dmemREN)) begin
       dpif.imemREN = 0;
     end else begin
       dpif.imemREN = 1;
@@ -132,16 +132,18 @@ module datapath (
   assign exmem.in_opcode = idex.out_opcode;
   assign exmem.in_regtarget = idex.out_rdat1;
   //mem state
-  assign ruif.dren = exmem.out_dren;
-  assign ruif.dwen = exmem.out_dwen;
-  assign dpif.dmemREN = ruif.dREN;
-  assign dpif.dmemWEN = ruif.dWEN;
+  assign dpif.dmemREN = exmem.out_dren;
+  assign dpif.dmemWEN = exmem.out_dwen;
+  //assign ruif.dren = exmem.out_dren;
+  //assign ruif.dwen = exmem.out_dwen;
+  //assign dpif.dmemREN = ruif.dREN;
+  //assign dpif.dmemWEN = ruif.dWEN;
   assign dpif.dmemaddr = exmem.out_aluout;
   assign dpif.dmemstore = exmem.out_writeData;
   assign memwb.in_regWrite = exmem.out_regWrite;
   assign memwb.in_memtoReg = exmem.out_memtoReg;
   assign memwb.in_halt = exmem.out_halt;
-  assign memwb.in_readData = (ruif.dhit) ? dpif.dmemload : memwb.in_readData;
+  assign memwb.in_readData = (dpif.dhit) ? dpif.dmemload : memwb.in_readData;
   assign memwb.in_aluout = exmem.out_aluout;
   assign memwb.in_opcode = exmem.out_opcode;
   assign memwb.in_jaddr = exmem.out_jaddr;

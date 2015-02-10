@@ -50,7 +50,6 @@ module register_file_tb;
 endmodule
 
 program test;
-<<<<<<< HEAD
   // testing variables
   int i;  // indexing variable
   int eflag = 0;  // error flag
@@ -131,6 +130,4 @@ program test;
     $finish;
   end
 
-=======
->>>>>>> 7dabfc3f11bbd03f1d249da3c2c0e8ce18ffaab5
 endprogram
