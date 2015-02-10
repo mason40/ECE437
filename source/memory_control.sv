@@ -3,7 +3,7 @@
   evillase@gmail.com
 
   this block is the coherence protocol
-  and artibtration for ram
+  and arbitration for ram
 */
 
 // interface include
@@ -21,54 +21,60 @@ module memory_control (
   import cpu_types_pkg::*;
 
   // number of cpus for cc
-  parameter CPUS = 2;
-  parameter CPUID = 0;
-  logic iren, dren, dwen;
-  always_ff @(posedge CLK) begin
-    iren <= ccif.iREN[CPUID];
-    dren <= ccif.dREN[CPUID];
-    dwen <= ccif.dWEN[CPUID];
-  end
-  // priority bus selection
-  always_comb begin
-    if(!nRST) begin
-      ccif.iwait[CPUID] = 1'b0;
-      ccif.dwait[CPUID] = 1'b0;
-      ccif.iload[CPUID] = '0;
-      ccif.dload[CPUID] = '0;
+  //parameter CPUS = 1;
+
+  //Instruction Load = RAM Load
+  assign ccif.iload = ccif.ramload;
+  //Data Load = RAM Load
+  assign ccif.dload = ccif.ramload;
+  //RAM Store = Data Store
+  assign ccif.ramstore = ccif.dstore;
+  //RAM Write Enable = Data Write Enable[0]
+  assign ccif.ramWEN = ccif.dWEN;
+  //RAM Read Enable = Data Read Enable[0] ? 1 : Instruction Read Enable & NOT Data Write Enable
+  assign ccif.ramREN = ccif.dREN ? 1 : (ccif.iREN & ~ccif.dWEN);
+
+  always_comb
+  begin
+
+    //If Data Write or Data Read are asserted, set RAM address to data address.
+    if(ccif.dWEN || ccif.dREN)
+    begin
+      ccif.ramaddr = ccif.daddr;
     end
+
+    //If neither signal is asserted, set ram address to instruction address.
+    else
+    begin
+      ccif.ramaddr = ccif.iaddr;
+    end
+
+    //Tell instruction and data to wait by default
+    ccif.iwait = 1;
+    ccif.dwait = 1;
+
     casez(ccif.ramstate)
-      ACCESS : begin
-        ccif.iwait[CPUID] = (ccif.dWEN[CPUID]||ccif.dREN[CPUID]) ? 1'b1 : 1'b0;
-        ccif.dwait[CPUID] = (ccif.iREN[CPUID] && ~ccif.dREN[CPUID] && ~ccif.dWEN[CPUID]) ? 1'b1 : 1'b0;
-        ccif.iload[CPUID] = ccif.ramload;
-        ccif.dload[CPUID] = ccif.ramload;
+
+      //Data Read, Data Write or Instruction Read means being Accessed
+      ACCESS:
+      begin
+        //IF Data Read or Data Write Enabled: Instruction Waiting, Data not waiting
+        if(ccif.dREN || ccif.dWEN)
+        begin
+          ccif.iwait = 1;
+          ccif.dwait = 0;
+        end
+
+        //IF Instruction Read Enabled, Instruction not waiting, Data waiting
+        else if(ccif.iREN)
+        begin
+          ccif.iwait = 0;
+          ccif.dwait = 1;
+        end
       end
-      BUSY : begin
-        ccif.iwait[CPUID] = 1'b1;
-        ccif.dwait[CPUID] = 1'b1;
-        ccif.iload[CPUID] = '0;
-        ccif.dload[CPUID] = '0;
-      end
-      FREE : begin
-        ccif.iwait[CPUID] = 1'b1;
-        ccif.dwait[CPUID] = 1'b1;
-        ccif.iload[CPUID] = '0;
-        ccif.dload[CPUID] = '0;
-      end
-      default : begin
-        ccif.iwait[CPUID] = 1'b1;
-        ccif.dwait[CPUID] = 1'b1;
-        ccif.iload[CPUID] = '0;
-        ccif.dload[CPUID] = '0;
-      end
+
     endcase
   end
-  //assign ccif.iload[CPUID] = (~ccif.iwait[CPUID]) ? ccif.ramload : ccif.iload[CPUID];
-  //assign ccif.dload[CPUID] = (~ccif.dwait[CPUID]) ? ccif.ramload : ccif.dload[CPUID];
-  //assign ccif.ramREN = (ccif.dREN[CPUID]&&~ccif.dWEN[CPUID])? ccif.dREN[CPUID] : ccif.iREN[CPUID];
-  assign ccif.ramREN = !ccif.dWEN[CPUID] &&(ccif.dREN[CPUID]||ccif.iREN[CPUID]);
-  assign ccif.ramWEN = ccif.dWEN[CPUID];
-  assign ccif.ramaddr = (ccif.dREN[CPUID]||ccif.dWEN[CPUID])? ccif.daddr[CPUID] : ccif.iaddr[CPUID];
-  assign ccif.ramstore = ccif.dstore[CPUID];
+
+
 endmodule

@@ -12,7 +12,6 @@
 `include "register_file_if.vh"
 `include "alu_if.vh"
 `include "pc_if.vh"
-`include "request_unit_if.vh"
 `include "ifid_if.vh"
 `include "idex_if.vh"
 `include "exmem_if.vh"
@@ -36,7 +35,6 @@ module datapath (
   register_file_if rfif();
   alu_if aluif();
   pc_if pcif();
-  //request_unit_if ruif();
   ifid_if ifid();
   idex_if idex();
   exmem_if exmem();
@@ -44,17 +42,17 @@ module datapath (
 
   // pc init
   parameter PC_INIT = 0;
-  assign enable = (exmem.out_opcode == LW || exmem.out_opcode == SW) ? dpif.dhit : dpif.ihit;
+  //assign enable = (exmem.out_opcode == LW || exmem.out_opcode == SW) ? dpif.dhit : dpif.ihit;
   //mapping control unit, regfile, alu and request unit, pc
   pc PC(CLK, nRST, pcif);
   control_unit CU(CLK, nRST,cuif);
   register_file RF(CLK, nRST, rfif);
   alu ALU(aluif);
   //request_unit RU(CLK, nRST, ruif);
-  ifid FD(CLK, nRST, enable, ifid);
-  idex DX(CLK, nRST, enable, idex);
-  exmem XM(CLK, nRST, enable, exmem);
-  memwb MB(CLK, nRST, enable, memwb);
+  ifid FD(CLK, nRST, dpif.ihit & ~dpif.dhit, dpif.dhit, ifid);
+  idex DX(CLK, nRST, dpif.ihit | dpif.dhit, idex);
+  exmem XM(CLK, nRST, dpif.ihit | dpif.dhit, exmem);
+  memwb MB(CLK, nRST, dpif.ihit | dpif.dhit, memwb);
 
   // fetch state
   assign pcif.branch = exmem.out_branch && exmem.out_zflag;
