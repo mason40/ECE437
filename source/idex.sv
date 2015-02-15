@@ -13,6 +13,7 @@ module idex (
   input logic CLK,
   input logic nRST,
   input logic en,
+  input logic nop,
   idex_if idex
 );
 import cpu_types_pkg::*;
@@ -20,7 +21,7 @@ import cpu_types_pkg::*;
 always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     idex.out_cpc <= 0;
-    idex.out_aluop <= ALU_ADD;
+    idex.out_aluop <= ALU_SLL;
     idex.out_regDst <= 0;
     idex.out_alusrc <= 0;
     idex.out_shift <= 0;
@@ -35,11 +36,35 @@ always_ff @ (posedge CLK, negedge nRST) begin
     idex.out_rdat1 <= 0;
     idex.out_rdat2 <= 0;
     idex.out_imm <= 0;
+    idex.out_rs <= 0;
     idex.out_rt <= 0;
     idex.out_rd <= 0;
     idex.out_jaddr <= 0;
     idex.out_shamt <= 0;
-    idex.out_opcode <= ADDI;
+    idex.out_opcode <= RTYPE;
+  end else if(nop) begin
+    idex.out_cpc <= 0;
+    idex.out_aluop <= ALU_SLL;
+    idex.out_regDst <= 0;
+    idex.out_alusrc <= 0;
+    idex.out_shift <= 0;
+    idex.out_lui <= 0;
+    idex.out_jump <= 0;
+    idex.out_branch <=0;
+    idex.out_dren <= 0;
+    idex.out_dwen <= 0;
+    idex.out_memtoReg <=0;
+    idex.out_regWrite <=0;
+    idex.out_halt <= 0;
+    idex.out_rdat1 <= 0;
+    idex.out_rdat2 <= 0;
+    idex.out_imm <= 0;
+    idex.out_rs <= 0;
+    idex.out_rt <= 0;
+    idex.out_rd <= 0;
+    idex.out_jaddr <= 0;
+    idex.out_shamt <= 0;
+    idex.out_opcode <= RTYPE;
   end else if(en) begin
     idex.out_cpc <= idex.in_cpc;
     idex.out_aluop <= idex.in_aluop;
@@ -57,6 +82,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
     idex.out_rdat1 <= idex.in_rdat1;
     idex.out_rdat2 <= idex.in_rdat2;
     idex.out_imm <= idex.in_imm;
+    idex.out_rs <= idex.in_rs;
     idex.out_rt <= idex.in_rt;
     idex.out_rd <= idex.in_rd;
     idex.out_jaddr <= idex.in_jaddr;

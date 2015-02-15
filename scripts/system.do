@@ -12,6 +12,8 @@ add wave -noupdate /system_tb/DUT/CPU/DP/idex/out_opcode
 add wave -noupdate /system_tb/DUT/CPUCLK
 add wave -noupdate -expand -group IF/ID /system_tb/DUT/CPU/DP/ifid/out_iload
 add wave -noupdate -expand -group IF/ID /system_tb/DUT/CPU/DP/ifid/out_cpc
+add wave -noupdate /system_tb/DUT/CPU/DP/FD/nop
+add wave -noupdate /system_tb/DUT/CPU/DP/FD/en
 add wave -noupdate -group ID/EX /system_tb/DUT/CPU/DP/idex/out_cpc
 add wave -noupdate -group ID/EX /system_tb/DUT/CPU/DP/idex/out_aluop
 add wave -noupdate -group ID/EX /system_tb/DUT/CPU/DP/idex/out_branch
@@ -68,18 +70,46 @@ add wave -noupdate -group RF /system_tb/DUT/CPU/DP/rfif/rsel2
 add wave -noupdate -group RF /system_tb/DUT/CPU/DP/rfif/wdat
 add wave -noupdate -group RF /system_tb/DUT/CPU/DP/rfif/rdat1
 add wave -noupdate -group RF /system_tb/DUT/CPU/DP/rfif/rdat2
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/ihit
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/imemREN
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/imemload
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/imemaddr
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dhit
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dmemREN
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dmemWEN
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dmemload
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dmemstore
-add wave -noupdate -expand -group DP /system_tb/DUT/CPU/DP/dpif/dmemaddr
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/ihit
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/imemREN
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/imemload
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/imemaddr
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dhit
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dmemREN
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dmemWEN
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dmemload
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dmemstore
+add wave -noupdate -group DP /system_tb/DUT/CPU/DP/dpif/dmemaddr
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/ri_enable
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/write
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/idex_rs
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/idex_rt
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/exmem_rd
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/exmem_regW
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/memwb_rd
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/memwb_regW
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/alu1
+add wave -noupdate -expand -group FU /system_tb/DUT/CPU/DP/fuif/alu2
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/ihit
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/dhit
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/instr
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/ifid_en
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/idex_en
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/exmem_en
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/memwb_en
+add wave -noupdate /system_tb/DUT/CPU/DP/huif/idex_op
+add wave -noupdate /system_tb/DUT/CPU/DP/huif/exmem_op
+add wave -noupdate /system_tb/DUT/CPU/DP/huif/idex_flush
+add wave -noupdate /system_tb/DUT/CPU/DP/huif/exmem_flush
+add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/aluop
+add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/porta
+add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/portb
+add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/portout
+add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/cpc
+add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/pcen
+add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/npc
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {235150 ps} 0}
+WaveRestoreCursors {{Cursor 1} {119354 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -95,4 +125,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {840 ns}
+WaveRestoreZoom {0 ps} {525 ns}

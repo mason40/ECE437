@@ -15,15 +15,17 @@ interface pc_if;
   // output to request unit
   word_t cpc;
   // input from request unit
-  word_t imm; // i type imm
-  word_t regtarget; // JR reg value
-  logic [25:0] jaddr; // j type jump target address
-  logic branch; // branch control signal
-  logic [1:0] jump; // jump control signal 00 : no jump, 01 : j, 10: jr, 11: jal
+  //word_t imm; // i type imm
+  //word_t regtarget; // JR reg value
+  //logic [25:0] jaddr; // j type jump target address
+  //logic branch; // branch control signal
+  //logic [1:0] jump; // jump control signal 00 : no jump, 01 : j, 10: jr, 11: jal
+  // input for program counter
   logic pcen;
+  word_t npc;
 
   modport  pc(
-    input imm, jaddr, branch, jump, regtarget, pcen,
+    input npc, pcen,
     output cpc
   );
 endinterface

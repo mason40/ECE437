@@ -6,13 +6,19 @@
     Program Counter source file
 */
 `include "pc_if.vh"
-`include "cpu_types_pkg.vh"
 
 module pc ( input logic CLK, nRST, pc_if.pc pcif);
-import cpu_types_pkg::*;
 
-word_t npc;
-
+always_ff @ (posedge CLK, negedge nRST) begin
+  if(!nRST) begin
+    pcif.cpc <= '0;
+  end else begin
+    if(pcif.pcen) begin
+      pcif.cpc <= pcif.npc;
+    end
+  end
+end
+/*
 always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     pcif.cpc <= '0;
@@ -37,5 +43,5 @@ always_comb begin
       npc = {npc[31:28],pcif.jaddr[25:0],2'b00};
     end
 end
-
+*/
 endmodule
