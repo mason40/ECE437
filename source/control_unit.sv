@@ -168,10 +168,19 @@ assign cuif.dren = signals[9];
 assign cuif.dwen = signals[8];
 assign cuif.shift = signals[7];
 assign cuif.lui = signals[6];
-assign cuif.branch = signals[5];
+//assign cuif.branch = signals[5];
 assign cuif.jump = signals[4:3];
 assign cuif.extend = signals[2];
 assign cuif.alusrc = signals[1];
 assign cuif.iren = (nRST & ~cuif.halt & ~cuif.dren);
 //assign cuif.halt = halt;
+always_comb begin
+  if(cuif.opcode == BNE) begin
+    cuif.branch = 2'b10;
+  end else if(cuif.opcode == BEQ) begin
+    cuif.branch = 2'b01;
+  end else begin
+    cuif.branch = 2'b00;
+  end
+end
 endmodule

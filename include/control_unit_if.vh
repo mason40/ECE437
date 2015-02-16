@@ -22,8 +22,8 @@ interface control_unit_if;
   aluop_t aluop;
   logic alusrc;
   // output from control unit
-  logic memtoReg,regWrite, iren, dren, dwen, regDst, branch, shift, lui, extend, halt;
-  logic [1:0] jump;
+  logic memtoReg,regWrite, iren, dren, dwen, regDst, shift, lui, extend, halt;
+  logic [1:0] jump, branch;
   word_t instr;
 
   modport cu (

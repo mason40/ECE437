@@ -66,6 +66,7 @@ module datapath (
   //memwb MB(CLK, nRST, dpif.ihit|dpif.dhit, memwb);
 
   // hazard unit connections
+  assign huif.opcode = opcode_t'(dpif.imemload[31:26]);
   assign huif.idex_op = idex.out_opcode;
   assign huif.exmem_op = exmem.out_opcode;
   assign huif.memwb_op = memwb.out_opcode;
@@ -85,11 +86,11 @@ module datapath (
   assign fuif.memwb_op = memwb.out_opcode;
   assign fuif.ri_enable = huif.ri_enable;
   // fetch state
-  assign pcif.pcen = nRST & dpif.ihit & ~dpif.dhit & ~huif.idex_flush;
+  assign pcif.pcen = (huif.pcpause) ? 1'b0 : nRST & dpif.ihit & ~dpif.dhit;
   // next program counter loc
   always_comb begin
     if(memwb.out_jump == 2'b00) begin
-      if(exmem.out_branch & exmem.out_zflag) begin
+      if(((exmem.out_branch==2'b01)&exmem.out_zflag)|((exmem.out_branch==2'b10)&~exmem.out_zflag)) begin
         pcif.npc = ({{16{exmem.out_imm[15]}},exmem.out_imm <<2})+(exmem.out_cpc+4);
       end else begin
         pcif.npc = pcif.cpc + 4;

@@ -16,8 +16,8 @@ interface exmem_if;
   //input from execute state
   word_t in_cpc;
   logic in_regWrite, in_memtoReg, in_halt;
-  logic in_branch, in_zflag, in_dren, in_dwen;
-  logic [1:0] in_jump;
+  logic in_zflag, in_dren, in_dwen;
+  logic [1:0] in_jump, in_branch;
   word_t in_aluout, in_writeData;
   word_t in_imm;
   word_t in_regtarget;
@@ -28,8 +28,8 @@ interface exmem_if;
   // output to mem state
   word_t out_cpc;
   logic out_regWrite, out_memtoReg, out_halt;
-  logic out_branch, out_zflag, out_dren, out_dwen;
-  logic [1:0] out_jump;
+  logic out_zflag, out_dren, out_dwen;
+  logic [1:0] out_jump, out_branch;
   word_t out_aluout, out_writeData;
   word_t out_imm;
   word_t out_regtarget;

@@ -29,17 +29,17 @@ interface idex_if;
   regbits_t in_rs, in_rt, in_rd;
   logic [4:0] in_shamt;
   // signals for mem state
-  logic in_branch, in_dren, in_dwen; // signals going to mem state
+  logic in_dren, in_dwen; // signals going to mem state
   // signals for wb state
-  logic [1:0] in_jump;
+  logic [1:0] in_jump, in_branch;
   logic in_memtoReg, in_regWrite, in_halt; // signals going to wb state
   opcode_t in_opcode;
 
   // output to execute state
   word_t out_cpc; // program counter flow through
   aluop_t out_aluop;
-  logic out_branch, out_dren, out_dwen; // signals going to mem state
-  logic [1:0] out_jump;
+  logic out_dren, out_dwen; // signals going to mem state
+  logic [1:0] out_jump, out_branch;
   logic out_memtoReg, out_regWrite, out_halt; // signals going to wb state
   logic out_regDst, out_alusrc, out_shift, out_lui; // signal use in execute state
   word_t out_rdat1, out_rdat2;
