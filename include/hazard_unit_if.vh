@@ -15,8 +15,9 @@ interface hazard_unit_if;
 
   // input into the hazard unit
   logic ihit, dhit;
-  opcode_t opcode, idex_op, exmem_op, memwb_op;
+  opcode_t opcode, ifid_op, idex_op, exmem_op, memwb_op;
   word_t instr;
+  regbits_t ifid_rs, ifid_rt, idex_rs;
   // output to enable the latches
   logic ifid_en, idex_en, exmem_en, memwb_en;
   // to create no op for lw/sw
@@ -25,7 +26,8 @@ interface hazard_unit_if;
   logic ri_enable, pcpause;
 
   modport hu (
-    input ihit, dhit, idex_op, exmem_op,memwb_op, instr, opcode,
+    input ihit, dhit, ifid_op, idex_op, exmem_op,memwb_op, instr, opcode,
+ifid_rs, ifid_rt, idex_rs,
     output ifid_en, idex_en, exmem_en, memwb_en, idex_flush, exmem_flush, memwb_flush, ifid_flush, ri_enable, pcpause
   );
 endinterface

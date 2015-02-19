@@ -56,9 +56,10 @@ module datapath (
   hazard_unit HU(CLK, nRST, huif);
   forward_unit FU(fuif);
   // latch units
-  ifid FD(CLK, nRST, huif.ifid_en, huif.idex_flush, ifid);
-  idex DX(CLK, nRST, huif.idex_en, huif.exmem_flush, idex);
-  exmem XM(CLK, nRST, huif.exmem_en, huif.memwb_flush,exmem);
+  ifid FD(CLK, nRST, huif.ifid_en, huif.ifid_flush, ifid);
+  //ifid FD(CLK, nRST, huif.ifid_en, huif.ifid_flush, ifid);
+  idex DX(CLK, nRST, huif.idex_en, huif.idex_flush, idex);
+  exmem XM(CLK, nRST, huif.exmem_en, huif.exmem_flush,exmem);
   memwb MB(CLK, nRST, huif.memwb_en, memwb);
   //ifid FD(CLK, nRST, dpif.ihit&~dpif.dhit, dpif.dhit, ifid);
   //idex DX(CLK, nRST, dpif.ihit|dpif.dhit, idex);
@@ -67,6 +68,7 @@ module datapath (
 
   // hazard unit connections
   assign huif.opcode = opcode_t'(dpif.imemload[31:26]);
+  assign huif.ifid_op = opcode_t'(ifid.out_iload[31:26]);
   assign huif.idex_op = idex.out_opcode;
   assign huif.exmem_op = exmem.out_opcode;
   assign huif.memwb_op = memwb.out_opcode;
@@ -86,7 +88,8 @@ module datapath (
   assign fuif.memwb_op = memwb.out_opcode;
   assign fuif.ri_enable = huif.ri_enable;
   // fetch state
-  assign pcif.pcen = (huif.pcpause) ? 1'b0 : nRST & dpif.ihit & ~dpif.dhit;
+  //assign pcif.pcen = (huif.pcpause) ? 1'b0 : nRST & dpif.ihit & ~dpif.dhit;
+  assign pcif.pcen = ~huif.pcpause;
   // next program counter loc
   always_comb begin
     if(memwb.out_jump == 2'b00) begin

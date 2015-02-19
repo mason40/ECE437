@@ -30,7 +30,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
     memwb.out_jump <= 0;
     memwb.out_regtarget <= 0;
     memwb.out_jaddr <= 0;
-    memwb.out_opcode <= ADDI;
+    memwb.out_opcode <= RTYPE;
   end else if(en) begin
     memwb.out_regWrite <= memwb.in_regWrite;
     memwb.out_memtoReg <= memwb.in_memtoReg;
