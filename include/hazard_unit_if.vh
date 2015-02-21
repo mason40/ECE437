@@ -14,21 +14,21 @@ interface hazard_unit_if;
   import cpu_types_pkg::*;
 
   // input into the hazard unit
-  logic ihit, dhit;
+  logic ihit, dhit, branch;
   opcode_t opcode, ifid_op, idex_op, exmem_op, memwb_op;
   word_t instr;
-  regbits_t ifid_rs, ifid_rt, idex_rs;
+  regbits_t ifid_rs, ifid_rt, idex_rs, idex_rt, exmem_rd;
   // output to enable the latches
   logic ifid_en, idex_en, exmem_en, memwb_en;
   // to create no op for lw/sw
   logic idex_flush, exmem_flush, memwb_flush, ifid_flush;
   // rtype or itype
-  logic ri_enable, pcpause;
+  logic ri_enable, pcpause, lw;
 
   modport hu (
     input ihit, dhit, ifid_op, idex_op, exmem_op,memwb_op, instr, opcode,
-ifid_rs, ifid_rt, idex_rs,
-    output ifid_en, idex_en, exmem_en, memwb_en, idex_flush, exmem_flush, memwb_flush, ifid_flush, ri_enable, pcpause
+ifid_rs, ifid_rt, idex_rs, idex_rt, exmem_rd, branch,
+    output ifid_en, idex_en, exmem_en, memwb_en, idex_flush, exmem_flush, memwb_flush, ifid_flush, ri_enable, pcpause, lw
   );
 endinterface
 `endif

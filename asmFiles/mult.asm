@@ -3,7 +3,7 @@
 # 1/16/2015
 #
 # Multiply Algorithm
-          org 0x0800
+          org 0x0000
 init:     ori $29, $0, 0xfffc
           ori $4, $0, 0x0000
           ori $10, $0, 0x0005

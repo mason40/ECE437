@@ -29,6 +29,7 @@ module datapath (
 );
   import cpu_types_pkg::word_t;
   word_t npc;
+  logic halt;
   logic enable;
 
   // import types
@@ -76,6 +77,7 @@ module datapath (
   assign huif.ihit = dpif.ihit;
   assign huif.dhit = dpif.dhit;
   assign huif.instr = dpif.imemload;
+  assign huif.branch = ((exmem.out_branch==2'b01)&exmem.out_zflag)|((exmem.out_branch==2'b10)&~exmem.out_zflag);
 
   // forwarding unit connections
   assign fuif.idex_rs = idex.out_rs;
@@ -87,6 +89,7 @@ module datapath (
   assign fuif.exmem_op = exmem.out_opcode;
   assign fuif.memwb_op = memwb.out_opcode;
   assign fuif.ri_enable = huif.ri_enable;
+  assign fuif.lw = huif.lw;
   // fetch state
   //assign pcif.pcen = (huif.pcpause) ? 1'b0 : nRST & dpif.ihit & ~dpif.dhit;
   assign pcif.pcen = ~huif.pcpause;
@@ -94,7 +97,7 @@ module datapath (
   always_comb begin
     if(memwb.out_jump == 2'b00) begin
       if(((exmem.out_branch==2'b01)&exmem.out_zflag)|((exmem.out_branch==2'b10)&~exmem.out_zflag)) begin
-        pcif.npc = ({{16{exmem.out_imm[15]}},exmem.out_imm <<2})+(exmem.out_cpc+4);
+        pcif.npc = ({{16{exmem.out_imm[15]}},16'h0000}|exmem.out_imm <<2)+(exmem.out_cpc+4);
       end else begin
         pcif.npc = pcif.cpc + 4;
       end
@@ -150,10 +153,10 @@ module datapath (
   always_comb begin
     casez(fuif.alu1)
       2'b10: begin
-        aluif.porta = exmem.out_aluout;
+        aluif.porta = (fuif.lw)?dpif.dmemload:exmem.out_aluout;
       end
       2'b01: begin
-        aluif.porta = memwb.out_aluout;
+        aluif.porta = (fuif.lw)?memwb.out_readData:memwb.out_aluout;
       end
       2'b00: begin
         aluif.porta = idex.out_rdat1;
@@ -164,10 +167,10 @@ module datapath (
   always_comb begin
     casez(fuif.alu2)
       2'b10: begin
-        aluif.portb = exmem.out_aluout;
+        aluif.portb = (fuif.lw)?dpif.dmemload:exmem.out_aluout;
       end
       2'b01: begin
-        aluif.portb = memwb.out_aluout;
+        aluif.portb = (fuif.lw)?memwb.out_readData:memwb.out_aluout;
       end
       2'b00: begin
         if(idex.out_alusrc) begin
@@ -219,7 +222,14 @@ module datapath (
   assign memwb.in_wsel = exmem.out_wsel;
   assign memwb.in_jump = exmem.out_jump;
   // write back state
-  assign dpif.halt = memwb.out_halt;
+  always_ff @ (posedge CLK, negedge nRST) begin
+    if(!nRST) begin
+      halt <= 0;
+    end else begin
+      halt <= memwb.out_halt;
+    end
+  end
+  assign dpif.halt = halt;
   assign npc = memwb.out_cpc + 4;
   assign rfif.wdat = (memwb.out_opcode == JAL) ? (memwb.out_cpc+4) : ((memwb.out_memtoReg) ? memwb.out_readData : memwb.out_aluout);
   assign rfif.WEN = memwb.out_regWrite;

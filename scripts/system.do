@@ -105,6 +105,7 @@ add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/exmem_flush
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/memwb_flush
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/ifid_flush
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/pcpause
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/branch
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/aluop
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/porta
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/portb
@@ -113,7 +114,7 @@ add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/cpc
 add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/pcen
 add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/npc
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1794618884 ps} 0}
+WaveRestoreCursors {{Cursor 1} {520000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -129,4 +130,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1794124 ns} {1795804 ns}
+WaveRestoreZoom {202 ns} {1042 ns}
