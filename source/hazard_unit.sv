@@ -60,7 +60,7 @@ always_comb begin
           huif.idex_flush = 1'b0;
           huif.exmem_flush = 1'b0;
         end
-      end else if((huif.exmem_op==LW)|(huif.exmem_op==SW)) begin
+      end else if(huif.exmem_op==SW) begin
         huif.pcpause = 1'b1;
         huif.ifid_en = 1'b1;
         huif.idex_en = 1'b1;
@@ -69,15 +69,26 @@ always_comb begin
         huif.ifid_flush = 1'b0;
         huif.idex_flush = 1'b0;
         huif.exmem_flush = 1'b0;
-      end else if((huif.exmem_op==LW)&((huif.exmem_rd==huif.idex_rs)|(huif.exmem_rd==huif.idex_rt))) begin
-        huif.pcpause = 1'b1;
-        huif.ifid_en = 1'b0;
-        huif.idex_en = 1'b1;
-        huif.exmem_en = 1'b1;
-        huif.memwb_en = 1'b1;
-        huif.ifid_flush = 1'b0;
-        huif.idex_flush = 1'b1;
-        huif.exmem_flush = 1'b0;
+      end else if(huif.exmem_op==LW) begin
+        if((huif.exmem_rd==huif.idex_rs)|(huif.exmem_rd==huif.idex_rt)) begin
+          huif.pcpause = 1'b1;
+          huif.ifid_en = 1'b0;
+          huif.idex_en = 1'b1;
+          huif.exmem_en = 1'b1;
+          huif.memwb_en = 1'b1;
+          huif.ifid_flush = 1'b0;
+          huif.idex_flush = 1'b1;
+          huif.exmem_flush = 1'b0;
+        end else begin
+          huif.pcpause = 1'b1;
+          huif.ifid_en = 1'b1;
+          huif.idex_en = 1'b1;
+          huif.exmem_en= 1'b1;
+          huif.memwb_en= 1'b1;
+          huif.ifid_flush = 1'b0;
+          huif.idex_flush = 1'b0;
+          huif.exmem_flush = 1'b0;
+        end
       end else if(huif.branch) begin
         huif.pcpause = 1'b0;
         huif.ifid_en = 1'b1;
