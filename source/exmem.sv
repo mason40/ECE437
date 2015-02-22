@@ -52,7 +52,8 @@ module exmem (
       exmem.out_regtarget <= 0;
       exmem.out_wsel <= 0;
       exmem.out_jaddr <= 0;
-    end else if(en) begin
+    end else begin
+      if (en) begin
       exmem.out_cpc <= exmem.in_cpc;
       exmem.out_regWrite <= exmem.in_regWrite;
       exmem.out_memtoReg <= exmem.in_memtoReg;
@@ -69,6 +70,7 @@ module exmem (
       exmem.out_regtarget <= exmem.in_regtarget;
       exmem.out_wsel <= exmem.in_wsel;
       exmem.out_jaddr <= exmem.in_jaddr;
+      end
     end
   end
 endmodule

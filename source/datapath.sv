@@ -106,6 +106,8 @@ module datapath (
       pcif.npc = {pcif.npc[31:28],memwb.out_jaddr,2'b00};
     end else if(memwb.out_jump == 2'b01) begin
       pcif.npc = memwb.out_regtarget;
+    end else begin
+      pcif.npc = pcif.cpc+4;
     end
   end
   assign dpif.imemaddr = pcif.cpc;
@@ -161,6 +163,9 @@ module datapath (
       2'b00: begin
         aluif.porta = idex.out_rdat1;
       end
+      default: begin
+        aluif.porta = idex.out_rdat1;
+      end
     endcase
   end
   // alu portb with forwarding unit
@@ -184,6 +189,9 @@ module datapath (
         end else begin
           aluif.portb = idex.out_rdat2;
         end
+      end
+      default: begin
+        aluif.portb = idex.out_rdat2;
       end
     endcase
   end

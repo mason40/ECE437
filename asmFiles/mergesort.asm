@@ -18,6 +18,7 @@ org 0x0000
   addu  $a0, $a0, $t0
   or    $s3, $zero, $a0
   or    $s4, $zero, $a1
+  halt
   jal   insertion_sort
   or    $a0, $zero, $s1
   or    $a1, $zero, $s2

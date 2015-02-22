@@ -18,15 +18,15 @@ module ifid (
 );
 
 
-always_ff @ (posedge CLK, negedge nRST) begin
+always_ff @ (posedge CLK, negedge nRST, posedge nop) begin
   if(!nRST) begin
     ifid.out_iload <= '0;
     ifid.out_cpc <= '0;
+  end else if(nop) begin
+    ifid.out_iload <= '0;
+    ifid.out_cpc <= '0;
   end else begin
-    if(nop) begin
-      ifid.out_iload <= '0;
-      ifid.out_cpc <= '0;
-    end else if(en) begin
+    if (en) begin
       ifid.out_iload <= ifid.in_iload;
       ifid.out_cpc <= ifid.in_cpc;
     end

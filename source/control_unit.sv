@@ -18,12 +18,13 @@ module control_unit (
 
 logic [12:0] signals;
 logic halt = 1'b0;
+logic v;
 
 always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     cuif.halt = 0;
   end else begin
-    if(signals[0] || cuif.instr == 32'hffffffff) begin
+    if(v || cuif.instr == 32'hffffffff) begin
       cuif.halt = 1'b1;
     end else begin
       cuif.halt = 1'b0;
@@ -181,6 +182,12 @@ always_comb begin
     cuif.branch = 2'b01;
   end else begin
     cuif.branch = 2'b00;
+  end
+  if((cuif.opcode==SLTI)|(cuif.opcode==ADDI)|(cuif.opcode==RTYPE&cuif.func==ADD)|
+     (cuif.opcode==RTYPE&cuif.func==SUB)|(cuif.opcode==RTYPE&cuif.func==SLT)) begin
+    v = cuif.vflag;
+  end else begin
+    v = 1'b0;
   end
 end
 endmodule

@@ -113,8 +113,11 @@ add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/portout
 add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/cpc
 add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/pcen
 add wave -noupdate -expand -group PC /system_tb/DUT/CPU/DP/pcif/npc
+add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/cuif/opcode
+add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/cuif/func
+add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/CU/v
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {520000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1339222 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -130,4 +133,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {202 ns} {1042 ns}
+WaveRestoreZoom {0 ps} {3150 ns}
