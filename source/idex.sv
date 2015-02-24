@@ -18,7 +18,7 @@ module idex (
 );
 import cpu_types_pkg::*;
 
-always_ff @ (posedge CLK, negedge nRST, posedge nop) begin
+always_ff @ (posedge CLK, negedge nRST) begin
   if(!nRST) begin
     idex.out_cpc <= 0;
     idex.out_aluop <= ALU_SLL;

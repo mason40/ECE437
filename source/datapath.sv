@@ -103,24 +103,26 @@ module datapath (
   assign pcif.pcen = ~huif.pcpause;
   // next program counter loc
   always_comb begin
-    if(memwb.out_jump == 2'b00) begin
+    if(exmem.out_jump == 2'b00) begin
       if(((exmem.out_branch==2'b01)&exmem.out_zflag)|((exmem.out_branch==2'b10)&~exmem.out_zflag)) begin
         pcif.npc = ({{16{exmem.out_imm[15]}},16'h0000}|exmem.out_imm <<2)+(exmem.out_cpc+4);
       end else begin
         pcif.npc = pcif.cpc + 4;
       end
-    end else if(memwb.out_jump == 2'b11) begin
+    end else if(exmem.out_jump == 2'b11) begin
       pcif.npc = exmem.out_cpc+4;
-      pcif.npc = {pcif.npc[31:28],memwb.out_jaddr,2'b00};
-    end else if(memwb.out_jump == 2'b01) begin
-      pcif.npc = memwb.out_regtarget;
+      pcif.npc = {pcif.npc[31:28],exmem.out_jaddr,2'b00};
+    end else if(exmem.out_jump == 2'b01) begin
+      pcif.npc = exmem.out_regtarget;
     end else begin
       pcif.npc = pcif.cpc+4;
     end
   end
   assign dpif.imemaddr = pcif.cpc;
-  assign ifid.in_cpc = (huif.ifid_en)? pcif.cpc : ifid.in_cpc;
-  assign ifid.in_iload = (huif.ifid_en)?dpif.imemload : ifid.in_iload;
+  //assign ifid.in_cpc = (huif.ifid_en)? pcif.cpc : 32'h00000000;
+  //assign ifid.in_iload = (huif.ifid_en)?dpif.imemload : 32'h00000000;
+  assign ifid.in_cpc = pcif.cpc;
+  assign ifid.in_iload = dpif.imemload;
   always_comb begin
     if(!nRST | memwb.out_halt | dpif.dmemREN | dpif.dmemWEN) begin
       dpif.imemREN = 0;
@@ -231,7 +233,7 @@ module datapath (
   assign memwb.in_regWrite = exmem.out_regWrite;
   assign memwb.in_memtoReg = exmem.out_memtoReg;
   assign memwb.in_halt = exmem.out_halt;
-  assign memwb.in_readData = (dpif.dhit) ? dpif.dmemload : memwb.in_readData;
+  assign memwb.in_readData = (dpif.dhit) ? dpif.dmemload : 32'h00000000;
   assign memwb.in_aluout = exmem.out_aluout;
   assign memwb.in_opcode = exmem.out_opcode;
   assign memwb.in_jaddr = exmem.out_jaddr;

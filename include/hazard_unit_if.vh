@@ -12,10 +12,12 @@
 
 interface hazard_unit_if;
   import cpu_types_pkg::*;
-
+  /* remove
+  opcode, ifid_op, instr, idex_rd, exmem_rt, exmem_rs, memwb_rd
+  */
   // input into the hazard unit
   logic ihit, dhit, branch;
-  opcode_t opcode, ifid_op, idex_op, exmem_op, memwb_op;
+  opcode_t opcode,ifid_op, idex_op, exmem_op, memwb_op;
   word_t instr;
   regbits_t ifid_rs, ifid_rt, idex_rs, idex_rt,idex_rd, exmem_rd;
   regbits_t exmem_rt, exmem_rs, memwb_rd;
