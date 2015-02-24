@@ -22,6 +22,7 @@ interface exmem_if;
   word_t in_imm;
   word_t in_regtarget;
   regbits_t in_wsel;
+  regbits_t in_rs, in_rt;
   logic [25:0] in_jaddr;
   opcode_t in_opcode;
 
@@ -34,16 +35,17 @@ interface exmem_if;
   word_t out_imm;
   word_t out_regtarget;
   regbits_t out_wsel;
+  regbits_t out_rs, out_rt;
   logic [25:0] out_jaddr;
   opcode_t out_opcode;
 
   modport exmem (
     input in_cpc, in_regWrite, in_memtoReg, in_halt, in_opcode,
           in_jump, in_branch, in_zflag, in_dren, in_dwen, in_regtarget,
-          in_aluout, in_writeData, in_imm, in_wsel, in_jaddr,
+          in_aluout, in_writeData, in_imm, in_wsel, in_jaddr, in_rs, in_rt,
     output out_cpc, out_regWrite, out_memtoReg, out_halt, out_opcode,
            out_jump, out_branch, out_zflag, out_dren, out_dwen, out_regtarget,
-           out_aluout, out_writeData, out_imm, out_wsel, out_jaddr
+           out_aluout, out_writeData, out_imm, out_wsel, out_jaddr, out_rs, out_rt
   );
 endinterface
 `endif

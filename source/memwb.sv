@@ -13,13 +13,14 @@ module memwb (
   input logic CLK,
   input logic nRST,
   input logic en,
+  input logic nop,
   memwb_if memwb
 );
 
 import cpu_types_pkg::*;
 
 always_ff @ (posedge CLK, negedge nRST) begin
-  if(!nRST) begin
+  if(!nRST | nop) begin
     memwb.out_regWrite <= 0;
     memwb.out_memtoReg <= 0;
     memwb.out_halt <= 0;

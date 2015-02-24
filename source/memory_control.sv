@@ -24,9 +24,9 @@ module memory_control (
   //parameter CPUS = 1;
 
   //Instruction Load = RAM Load
-  assign ccif.iload = (ccif.iREN)? ccif.ramload : ccif.iload;
+  assign ccif.iload = ccif.ramload;
   //Data Load = RAM Load
-  assign ccif.dload = (ccif.dREN|ccif.dWEN)? ccif.ramload : ccif.dload;
+  assign ccif.dload = ccif.ramload;
   //RAM Store = Data Store
   assign ccif.ramstore = ccif.dstore;
   //RAM Write Enable = Data Write Enable[0]

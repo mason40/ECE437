@@ -61,22 +61,30 @@ module datapath (
   //ifid FD(CLK, nRST, huif.ifid_en, huif.ifid_flush, ifid);
   idex DX(CLK, nRST, huif.idex_en, huif.idex_flush, idex);
   exmem XM(CLK, nRST, huif.exmem_en, huif.exmem_flush,exmem);
-  memwb MB(CLK, nRST, huif.memwb_en, memwb);
+  memwb MB(CLK, nRST, huif.memwb_en, huif.memwb_flush, memwb);
   //ifid FD(CLK, nRST, dpif.ihit&~dpif.dhit, dpif.dhit, ifid);
   //idex DX(CLK, nRST, dpif.ihit|dpif.dhit, idex);
   //exmem XM(CLK, nRST, dpif.ihit|dpif.dhit, exmem);
   //memwb MB(CLK, nRST, dpif.ihit|dpif.dhit, memwb);
 
   // hazard unit connections
-  assign huif.opcode = opcode_t'(dpif.imemload[31:26]);
+  //assign huif.opcode = opcode_t'(dpif.imemload[31:26]);
   assign huif.ifid_op = opcode_t'(ifid.out_iload[31:26]);
   assign huif.idex_op = idex.out_opcode;
   assign huif.exmem_op = exmem.out_opcode;
   assign huif.memwb_op = memwb.out_opcode;
+  assign huif.ifid_rs = regbits_t'(ifid.out_iload[25:21]);
+  assign huif.ifid_rt = regbits_t'(ifid.out_iload[20:16]);
+  assign huif.idex_rs = idex.out_rs;
+  assign huif.idex_rt = idex.out_rt;
+  assign huif.exmem_rd = exmem.out_wsel;
+  assign huif.exmem_rt = exmem.out_rt;
+  assign huif.exmem_rs = exmem.out_rs;
+  assign huif.memwb_rd = memwb.out_wsel;
   //assign huif.opcode = opcode_t'(ifid.out_iload[31:26]);
   assign huif.ihit = dpif.ihit;
   assign huif.dhit = dpif.dhit;
-  assign huif.instr = dpif.imemload;
+  //assign huif.instr = dpif.imemload;
   assign huif.branch = ((exmem.out_branch==2'b01)&exmem.out_zflag)|((exmem.out_branch==2'b10)&~exmem.out_zflag);
 
   // forwarding unit connections
@@ -111,8 +119,8 @@ module datapath (
     end
   end
   assign dpif.imemaddr = pcif.cpc;
-  assign ifid.in_cpc = pcif.cpc;
-  assign ifid.in_iload = dpif.imemload;
+  assign ifid.in_cpc = (huif.ifid_en)? pcif.cpc : ifid.in_cpc;
+  assign ifid.in_iload = (huif.ifid_en)?dpif.imemload : ifid.in_iload;
   always_comb begin
     if(!nRST | memwb.out_halt | dpif.dmemREN | dpif.dmemWEN) begin
       dpif.imemREN = 0;
@@ -155,7 +163,7 @@ module datapath (
   always_comb begin
     casez(fuif.alu1)
       2'b10: begin
-        aluif.porta = (fuif.lw)?dpif.dmemload:exmem.out_aluout;
+        aluif.porta = (fuif.lw)?memwb.out_readData:exmem.out_aluout;
       end
       2'b01: begin
         aluif.porta = (fuif.lw)?memwb.out_readData:memwb.out_aluout;
@@ -172,7 +180,7 @@ module datapath (
   always_comb begin
     casez(fuif.alu2)
       2'b10: begin
-        aluif.portb = (fuif.lw)?dpif.dmemload:exmem.out_aluout;
+        aluif.portb = (fuif.lw)?memwb.out_readData:exmem.out_aluout;
       end
       2'b01: begin
         aluif.portb = (fuif.lw)?memwb.out_readData:memwb.out_aluout;
@@ -206,6 +214,8 @@ module datapath (
   assign exmem.in_dren = idex.out_dren;
   assign exmem.in_dwen = idex.out_dwen;
   assign exmem.in_wsel = (idex.out_regDst) ? idex.out_rd : idex.out_rt;
+  assign exmem.in_rs = idex.out_rs;
+  assign exmem.in_rt = idex.out_rt;
   assign exmem.in_aluout = aluif.portout;
   assign exmem.in_writeData = (fuif.write)? exmem.out_aluout : idex.out_rdat2;
   assign exmem.in_imm = idex.out_imm;

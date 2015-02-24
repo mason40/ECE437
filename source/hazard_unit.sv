@@ -28,6 +28,7 @@ always_comb begin
       huif.ifid_flush = 1'b0;
       huif.idex_flush = 1'b0;
       huif.exmem_flush = 1'b0;
+      huif.memwb_flush = 1'b0;
       huif.pcpause = 1'b0;
       huif.ri_enable = 1'b0;
       huif.lw = 1'b0;
@@ -70,25 +71,73 @@ always_comb begin
         huif.idex_flush = 1'b0;
         huif.exmem_flush = 1'b0;
       end else if(huif.exmem_op==LW) begin
-        if((huif.exmem_rd==huif.idex_rs)|(huif.exmem_rd==huif.idex_rt)) begin
+        huif.pcpause = 1'b1;
+        if(((huif.exmem_rd==huif.ifid_rs)|(huif.exmem_rd==huif.ifid_rt))&(huif.exmem_rd!=0)) begin
+          huif.ifid_en = 1'b0;
+          huif.idex_en = 1'b1;
+          huif.idex_flush = 1'b0;
+          huif.exmem_flush = 1'b0;
+        end else if(((huif.exmem_rd==huif.idex_rs)|(huif.exmem_rd==huif.idex_rt))&(huif.exmem_rd!=0)) begin
+          huif.ifid_en = 1'b0;
+          huif.idex_en = 1'b0;
+          huif.idex_flush = 1'b0;
+          huif.exmem_flush = 1'b1;
+        end else begin
+          huif.ifid_en = 1'b1;
+          huif.idex_en = 1'b1;
+          huif.idex_flush = 1'b0;
+          huif.exmem_flush = 1'b0;
+        end
+        huif.exmem_en = 1'b1;
+        huif.memwb_en = 1'b1;
+        huif.ifid_flush = 1'b0;
+      /*end else if(huif.memwb_op==LW) begin
+        huif.pcpause = 1'b1;
+        if(((huif.memwb_rd==huif.exmem_rs)|(huif.memwb_rd==huif.exmem_rt))&(huif.memwb_rd!=0)) begin
+          huif.ifid_en = 1'b0;
+          huif.idex_en = 1'b0;
+      //    huif.memwb_flush = 1'b1;
+        end else begin
+          huif.ifid_en = 1'b1;
+          huif.idex_en = 1'b1;
+        //  huif.memwb_flush = 1'b0;
+        end
+        huif.exmem_en = 1'b1;
+        huif.memwb_en = 1'b1;
+        huif.ifid_flush = 1'b0;
+        huif.exmem_flush = 1'b0;
+      /*end else if(huif.idex_op==LW) begin
+        if(huif.idex_rd == 0) begin
+          huif.pcpause = 1'b0;
+      /*end else if(huif.idex_op==LW) begin
+        if(huif.idex_rd == 0) begin
+          huif.pcpause = 1'b0;
+          huif.ifid_en = 1'b1;
+          huif.idex_en = 1'b1;
+          huif.exmem_en = 1'b1;
+          huif.memwb_en = 1'b1;
+          huif.ifid_flush = 1'b0;
+          huif.idex_flush = 1'b0;
+          huif.exmem_flush = 1'b0;
+        end else if((huif.idex_rd==huif.ifid_rs)|(huif.idex_rd==huif.ifid_rt)) begin
           huif.pcpause = 1'b1;
           huif.ifid_en = 1'b0;
           huif.idex_en = 1'b1;
           huif.exmem_en = 1'b1;
           huif.memwb_en = 1'b1;
           huif.ifid_flush = 1'b0;
-          huif.idex_flush = 1'b1;
+          huif.idex_flush = 1'b0;
           huif.exmem_flush = 1'b0;
         end else begin
-          huif.pcpause = 1'b1;
+          huif.pcpause = 1'b0;
           huif.ifid_en = 1'b1;
           huif.idex_en = 1'b1;
-          huif.exmem_en= 1'b1;
-          huif.memwb_en= 1'b1;
+          huif.exmem_en = 1'b1;
+          huif.memwb_en = 1'b1;
           huif.ifid_flush = 1'b0;
           huif.idex_flush = 1'b0;
           huif.exmem_flush = 1'b0;
-        end
+        end*/
       end else if(huif.branch) begin
         huif.pcpause = 1'b0;
         huif.ifid_en = 1'b1;
@@ -106,6 +155,7 @@ always_comb begin
         huif.ifid_flush = 1'b0;
         huif.idex_flush = 1'b0;
         huif.exmem_flush = 1'b0;
+        huif.memwb_flush = 1'b0;
         huif.pcpause =1'b0;
       end
       if(huif.idex_op==SW|huif.idex_op==ADDIU|huif.idex_op==ADDI|huif.idex_op==BEQ|
@@ -115,7 +165,7 @@ always_comb begin
       end else begin
         huif.ri_enable = 1'b1;
       end// end of rtype itype
-      if(huif.exmem_op == LW) begin
+      if(huif.memwb_op == LW) begin
         huif.lw = 1'b1;
       end else begin
         huif.lw = 1'b0;
