@@ -42,6 +42,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
     idex.out_jaddr <= 0;
     idex.out_shamt <= 0;
     idex.out_opcode <= RTYPE;
+    idex.out_funct <= SLL;
   end else if(nop) begin
     idex.out_cpc <= 0;
     idex.out_aluop <= ALU_SLL;
@@ -65,6 +66,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
     idex.out_jaddr <= 0;
     idex.out_shamt <= 0;
     idex.out_opcode <= RTYPE;
+    idex.out_funct <= SLL;
   end else begin
     if(en) begin
     idex.out_cpc <= idex.in_cpc;
@@ -89,6 +91,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
     idex.out_jaddr <= idex.in_jaddr;
     idex.out_shamt <= idex.in_shamt;
     idex.out_opcode <= idex.in_opcode;
+    idex.out_funct <= idex.in_funct;
     end
    end
 end

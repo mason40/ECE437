@@ -54,20 +54,22 @@ always_comb begin
     if((fuif.idex_rs==fuif.memwb_rd)&(fuif.memwb_rd!=0)&~fuif.ri_enable) begin
       forward_a = 2'b01;
       if(fuif.lw) begin
-        fuif.write = 1'b1;
+        fuif.write = 2'b01;
       end
     end else if((fuif.idex_rs==fuif.exmem_rd)&(fuif.exmem_rd!=0)&~fuif.ri_enable) begin
       forward_a = 2'b10;
       if(fuif.lw) begin
-        fuif.write = 1'b1;
+        fuif.write = 2'b01;
       end
     //end else begin
     //  forward_a = 2'b00;
     end
     if((fuif.idex_rt ==fuif.exmem_rd)&fuif.exmem_regW&(fuif.exmem_rd!=0)&~fuif.ri_enable) begin
-      fuif.write = 1'b1;
+      fuif.write = 2'b11;
+    end else if((huif.idex_rt ==fuif.memwb_rd)&fuif.exmem_regW&(fuif.exmem_rd!=0) & ~fuif.ri_enable) begin
+      fuif.write = 2'b10;
     end else begin
-      fuif.write = 1'b0;
+      fuif.write = 2'b00;
     end
 end
 

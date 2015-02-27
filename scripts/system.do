@@ -2,6 +2,7 @@ onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /system_tb/nRST
 add wave -noupdate /system_tb/CLK
+add wave -noupdate /system_tb/PROG/syif/halt
 add wave -noupdate -expand -group RAM /system_tb/DUT/prif/ramREN
 add wave -noupdate -expand -group RAM /system_tb/DUT/prif/ramWEN
 add wave -noupdate -expand -group RAM /system_tb/DUT/prif/ramaddr
@@ -115,6 +116,7 @@ add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/exmem_rt
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/exmem_rs
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/ifid_rt
 add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/ifid_rs
+add wave -noupdate -expand -group HU /system_tb/DUT/CPU/DP/huif/exmem_funct
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/aluop
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/porta
 add wave -noupdate -expand -group ALU /system_tb/DUT/CPU/DP/aluif/portb
@@ -126,7 +128,7 @@ add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/cuif/opcode
 add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/cuif/func
 add wave -noupdate -expand -group CU /system_tb/DUT/CPU/DP/CU/v
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {840000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {93317881 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -142,4 +144,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {1575 ns}
+WaveRestoreZoom {93124479 ps} {93870285 ps}

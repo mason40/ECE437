@@ -13,7 +13,7 @@
 interface forward_unit_if;
   import cpu_types_pkg::*;
   // rtype or itype enable
-  logic ri_enable, lw;
+  logic ri_enable, lw, sw;
   // input from idex
   regbits_t idex_rs, idex_rt;
   // input from exmem
@@ -26,11 +26,11 @@ interface forward_unit_if;
   opcode_t memwb_op;
   // control signals
   logic [1:0] alu1, alu2;
-  logic write;
+  logic [1:0] write;
 
   modport fu (
     input idex_rs, idex_rt, exmem_rd, exmem_regW, memwb_rd, memwb_regW,
-          exmem_op, memwb_op, ri_enable, lw,
+          exmem_op, memwb_op, ri_enable, lw, sw,
     output alu1, alu2, write
   );
 endinterface

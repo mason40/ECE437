@@ -32,7 +32,8 @@ module memory_control (
   //RAM Write Enable = Data Write Enable[0]
   assign ccif.ramWEN = ccif.dWEN;
   //RAM Read Enable = Data Read Enable[0] ? 1 : Instruction Read Enable & NOT Data Write Enable
-  assign ccif.ramREN = ccif.dREN ? 1 : (ccif.iREN & ~ccif.dWEN);
+  //assign ccif.ramREN = ccif.dREN ? 1 : (ccif.iREN & ~ccif.dWEN);
+  assign ccif.ramREN = ccif.iREN[0]|ccif.dREN[0];
 
   always_comb
   begin

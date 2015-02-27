@@ -43,7 +43,7 @@ always_comb begin
         huif.idex_flush = 1'b1;
         huif.exmem_flush = 1'b1;
         huif.memwb_flush = 1'b0;
-      end else if((huif.exmem_op==J)|(huif.exmem_op==JAL)|(huif.exmem_op==JR)) begin
+      end else if((huif.exmem_op==J)|(huif.exmem_op==JAL)|(huif.exmem_op == RTYPE &&huif.exmem_funct==JR)) begin
         huif.pcpause = 1'b0;
         huif.ifid_en = 1'b1;
         huif.idex_en = 1'b1;

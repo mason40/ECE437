@@ -37,6 +37,7 @@ module exmem (
       exmem.out_jaddr <= 0;
       exmem.out_rs <= 0;
       exmem.out_rt <= 0;
+      exmem.out_funct <= SLL;
     end else if(nop) begin
       exmem.out_cpc <= 0;
       exmem.out_regWrite <= 0;
@@ -56,6 +57,7 @@ module exmem (
       exmem.out_jaddr <= 0;
       exmem.out_rs <= 0;
       exmem.out_rt <= 0;
+      exmem.out_funct <= SLL;
     end else begin
       if (en) begin
       exmem.out_cpc <= exmem.in_cpc;
@@ -76,6 +78,7 @@ module exmem (
       exmem.out_jaddr <= exmem.in_jaddr;
       exmem.out_rs <= exmem.in_rs;
       exmem.out_rt <= exmem.in_rt;
+      exmem.out_funct <= exmem.in_funct;
       end
     end
   end

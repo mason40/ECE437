@@ -18,7 +18,7 @@
 
 module system_tb;
   // clock period
-  parameter PERIOD = 12;
+  parameter PERIOD = 20;
 
   // signals
   logic CLK = 1, nRST;
@@ -72,6 +72,7 @@ program test(input logic CLK, output logic nRST, system_if.tb syif);
     while (!syif.halt)
     begin
       @(posedge CLK);
+      if(syif.WEN == 1) $display("%g, %h", $time, syif.store);
       cycles++;
     end
     #(system_tb.PERIOD);

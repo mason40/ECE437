@@ -25,7 +25,7 @@ interface exmem_if;
   regbits_t in_rs, in_rt;
   logic [25:0] in_jaddr;
   opcode_t in_opcode;
-
+  funct_t in_funct;
   // output to mem state
   word_t out_cpc;
   logic out_regWrite, out_memtoReg, out_halt;
@@ -38,12 +38,12 @@ interface exmem_if;
   regbits_t out_rs, out_rt;
   logic [25:0] out_jaddr;
   opcode_t out_opcode;
-
+  funct_t out_funct;
   modport exmem (
-    input in_cpc, in_regWrite, in_memtoReg, in_halt, in_opcode,
+    input in_cpc, in_regWrite, in_memtoReg, in_halt, in_opcode, in_funct,
           in_jump, in_branch, in_zflag, in_dren, in_dwen, in_regtarget,
           in_aluout, in_writeData, in_imm, in_wsel, in_jaddr, in_rs, in_rt,
-    output out_cpc, out_regWrite, out_memtoReg, out_halt, out_opcode,
+    output out_cpc, out_regWrite, out_memtoReg, out_halt, out_opcode, out_funct,
            out_jump, out_branch, out_zflag, out_dren, out_dwen, out_regtarget,
            out_aluout, out_writeData, out_imm, out_wsel, out_jaddr, out_rs, out_rt
   );

@@ -72,6 +72,7 @@ module datapath (
   assign huif.ifid_op = opcode_t'(ifid.out_iload[31:26]);
   assign huif.idex_op = idex.out_opcode;
   assign huif.exmem_op = exmem.out_opcode;
+  assign huif.exmem_funct = exmem.out_funct;
   assign huif.memwb_op = memwb.out_opcode;
   assign huif.ifid_rs = regbits_t'(ifid.out_iload[25:21]);
   assign huif.ifid_rt = regbits_t'(ifid.out_iload[20:16]);
@@ -122,7 +123,7 @@ module datapath (
   //assign ifid.in_cpc = (huif.ifid_en)? pcif.cpc : 32'h00000000;
   //assign ifid.in_iload = (huif.ifid_en)?dpif.imemload : 32'h00000000;
   assign ifid.in_cpc = pcif.cpc;
-  assign ifid.in_iload = dpif.imemload;
+  assign ifid.in_iload = (dpif.ihit)?dpif.imemload:32'h00000000;
   always_comb begin
     if(!nRST | memwb.out_halt | dpif.dmemREN | dpif.dmemWEN) begin
       dpif.imemREN = 0;
@@ -159,6 +160,7 @@ module datapath (
   assign idex.in_jaddr = ifid.out_iload[25:0];
   assign idex.in_shamt = ifid.out_iload[10:6];
   assign idex.in_opcode = opcode_t'(ifid.out_iload[31:26]);
+  assign idex.in_funct = funct_t'(ifid.out_iload[5:0]);
   // execute state
   //assign aluif.porta = idex.out_rdat1;
   // alu porta with forwarding unit
@@ -219,16 +221,35 @@ module datapath (
   assign exmem.in_rs = idex.out_rs;
   assign exmem.in_rt = idex.out_rt;
   assign exmem.in_aluout = aluif.portout;
-  assign exmem.in_writeData = (fuif.write)? exmem.out_aluout : idex.out_rdat2;
+  always_comb begin
+    if(fuif.write==2'b11) begin
+      exmem.in_writeData = exmem.out_aluout;
+    end else if(fuif.write == 2'b10) begin
+      exmem.in_writeData = memwb.out_aluout;
+    end else if(fuif.write == 2'b01) begin
+      exmem.in_writeData = idex.out_rdat2;
+    end else begin
+      exmem.in_writeData = idex.out_rdat2;
+    end
+  end
+  //assign exmem.in_writeData = (fuif.write)? exmem.out_aluout : idex.out_rdat2;
   assign exmem.in_imm = idex.out_imm;
   assign exmem.in_jaddr = idex.out_jaddr;
   assign exmem.in_opcode = idex.out_opcode;
   assign exmem.in_regtarget = idex.out_rdat1;
+  assign exmem.in_funct = idex.out_funct;
   //mem state
   assign dpif.dmemREN = exmem.out_dren;
   assign dpif.dmemWEN = exmem.out_dwen;
   assign dpif.dmemaddr = exmem.out_aluout;
-  assign dpif.dmemstore = (fuif.write==1) ? exmem.out_aluout : exmem.out_writeData;
+  always_comb begin
+    if(fuif.write == 2'b01) begin
+      dpif.dmemstore = exmem.out_aluout;
+    end else begin
+      dpif.dmemstore = exmem.out_writeData;
+    end
+  end
+  //assign dpif.dmemstore = (fuif.write==1) ? exmem.out_aluout : exmem.out_writeData;
   //assign dpif.dmemstore = exmem.out_writeData;
   assign memwb.in_regWrite = exmem.out_regWrite;
   assign memwb.in_memtoReg = exmem.out_memtoReg;

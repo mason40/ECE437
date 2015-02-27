@@ -34,6 +34,7 @@ interface idex_if;
   logic [1:0] in_jump, in_branch;
   logic in_memtoReg, in_regWrite, in_halt; // signals going to wb state
   opcode_t in_opcode;
+  funct_t in_funct;
 
   // output to execute state
   word_t out_cpc; // program counter flow through
@@ -48,14 +49,15 @@ interface idex_if;
   logic [4:0] out_shamt;
   logic [25:0] out_jaddr;
   opcode_t out_opcode;
+  funct_t out_funct;
 
   modport idex (
     input in_cpc, in_aluop, in_regDst, in_alusrc, in_shift, in_lui,
-          in_jump, in_branch, in_dren, in_dwen, in_opcode,
+          in_jump, in_branch, in_dren, in_dwen, in_opcode, in_funct,
           in_memtoReg, in_regWrite,in_halt, in_rdat1, in_rdat2,
           in_imm, in_rs, in_rt, in_rd, in_jaddr, in_shamt,
     output out_cpc, out_aluop, out_regDst, out_alusrc, out_shift, out_lui,
-           out_jump, out_branch, out_dren, out_dwen, out_opcode,
+           out_jump, out_branch, out_dren, out_dwen, out_opcode, out_funct,
            out_memtoReg, out_regWrite, out_halt, out_rdat1, out_rdat2,
            out_imm, out_rs, out_rt, out_rd, out_jaddr, out_shamt
   );
